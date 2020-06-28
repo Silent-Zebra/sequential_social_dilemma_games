@@ -96,6 +96,10 @@ class DQNAgent:
         self.episode_reward = 0
         self.episode_reward_history = deque(maxlen=episode_reward_history_len)
 
+    def to(self, device):
+        self.q_being_updated.to(device)
+        self.q_target_net.to(device)
+
 
     def train_nn(self, discount, batch_size):
 

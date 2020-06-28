@@ -9,6 +9,8 @@ from tests import test_rollout
 from rollout import Controller
 import os
 
+import torch
+
 
 harvest_default_params = {
     'lr_init': 0.00136,
@@ -24,6 +26,7 @@ def main(args):
     epochs = 100
     horizon_len = 50
     print_every = 1
+
 
     for epoch in range(epochs):
         rewards, observations, full_obs = controller.rollout(horizon_len, save_path=path)

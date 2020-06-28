@@ -13,6 +13,8 @@ from social_dilemmas.envs.harvest import HarvestEnv
 
 from DQN import DQNAgent, NeuralNet, ConvFC
 
+import torch
+
 
 # FLAGS = tf.app.flags.FLAGS
 #
@@ -76,6 +78,9 @@ class Controller(object):
             save_path: If provided, will save each frame to disk at this
                 location.
         """
+
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
         rewards = np.zeros(self.num_agents)
         observations = []
         shape = self.env.world_map.shape
@@ -99,9 +104,9 @@ class Controller(object):
                 agent_i = "agent-{}".format(i)
                 # print(obs[agent_i].shape)
                 if train_agents:
-                    action_dict[agent_i] = self.agent_policies[i].act(reshape_obs_for_convfc(obs[agent_i]), epsilon=self.agent_policies[i].epsilon)
+                    action_dict[agent_i] = self.agent_policies[i].act(reshape_obs_for_convfc(obs[agent_i]).to(device), epsilon=self.agent_policies[i].epsilon)
                 else:
-                    action_dict[agent_i] = self.agent_policies[i].act(reshape_obs_for_convfc(obs[agent_i]))
+                    action_dict[agent_i] = self.agent_policies[i].act(reshape_obs_for_convfc(obs[agent_i]).to(device))
                     # self.agent_policies[i].act(obs[agent_i].reshape(
                     # 1, obs[agent_i].shape[2], obs[agent_i].shape[0], obs[agent_i].shape[1] )) # batch size = 1 for 1 obs right now...
 
