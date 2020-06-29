@@ -37,6 +37,9 @@ def reshape_obs_for_convfc(obs_agent_i):
         obs_agent_i.shape[2], obs_agent_i.shape[0], obs_agent_i.shape[1])
 
 
+
+
+
 class Controller(object):
 
     def __init__(self, env_name='harvest', num_agents=5):
@@ -68,7 +71,12 @@ class Controller(object):
 
         self.env.reset()
 
-
+    def train_agent(self, i, obs, action_dict, rew, next_obs, dones):
+        agent_i = "agent-{}".format(i)
+        self.agent_policies[i].q_learn_update(
+            reshape_obs_for_convfc(obs[agent_i]), action_dict[agent_i],
+            rew[agent_i], reshape_obs_for_convfc(next_obs[agent_i]),
+            dones[agent_i])
 
     def rollout(self, horizon=50, save_path=None, train_agents=True):
         """ Rollout several timesteps of an episode of the environment.
@@ -125,14 +133,8 @@ class Controller(object):
             # print(dones["agent-0"])
 
             if train_agents:
-                def train_agent(agent_i):
-                    self.agent_policies[i].q_learn_update(
-                        reshape_obs_for_convfc(obs[agent_i]), action_dict[agent_i],
-                        rew[agent_i], reshape_obs_for_convfc(next_obs[agent_i]), dones[agent_i])
-
                 for i in range(self.num_agents):
-                    agent_i = "agent-{}".format(i)
-                    torch.multiprocessing.spawn(train_agent, args=(agent_i))
+                    torch.multiprocessing.spawn(self.train_agent, args=(i, obs, action_dict, rew, next_obs, dones))
                     # train_agent(agent_i)
 
             obs = next_obs
