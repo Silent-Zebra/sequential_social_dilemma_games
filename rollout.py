@@ -80,6 +80,11 @@ class Controller(object):
             rew[agent_i], reshape_obs_for_convfc(next_obs[agent_i]),
             dones[agent_i])
 
+    def train_parallel_agents(self, id, obs, action_dict, rew, next_obs, dones):
+        for i in range(self.num_agents):
+            # torch.multiprocessing.spawn(self.train_agent, args=(i, obs, action_dict, rew, next_obs, dones))
+            self.train_agent(id, i, obs, action_dict, rew, next_obs, dones)
+
     def rollout(self, horizon=50, save_path=None, train_agents=True):
         """ Rollout several timesteps of an episode of the environment.
 
@@ -135,9 +140,10 @@ class Controller(object):
             # print(dones["agent-0"])
 
             if train_agents:
-                for i in range(self.num_agents):
-                    # torch.multiprocessing.spawn(self.train_agent, args=(i, obs, action_dict, rew, next_obs, dones))
-                    self.train_agent(0, i, obs, action_dict, rew, next_obs, dones)
+                torch.multiprocessing.spawn(self.train_parallel_agents, nprocs=10, args=(obs, action_dict, rew, next_obs, dones))
+                # for i in range(self.num_agents):
+                #     # torch.multiprocessing.spawn(self.train_agent, args=(i, obs, action_dict, rew, next_obs, dones))
+                #     self.train_agent(0, i, obs, action_dict, rew, next_obs, dones)
 
             obs = next_obs
 
