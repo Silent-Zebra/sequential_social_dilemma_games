@@ -95,6 +95,9 @@ class DQNAgent:
         self.reward_total = 0
         self.episode_reward = 0
         self.episode_reward_history = deque(maxlen=episode_reward_history_len)
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.to(self.device)
+
 
     def to(self, device):
         self.q_being_updated.to(device)
@@ -158,6 +161,7 @@ class DQNAgent:
         states = np.array(states)
         states = torch.from_numpy(states)
         states = states.float()
+        states = states.to(device=self.device)
 
         if no_grad:
             with torch.no_grad():
@@ -165,7 +169,7 @@ class DQNAgent:
         else:
             output = neural_net_to_use(states)
 
-        return output
+        return output.cpu()
 
     def maxQ(self, states, neural_net_to_use):
         # The no_grad=True line below is very important on this part!
