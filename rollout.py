@@ -137,7 +137,7 @@ class Controller(object):
             if train_agents:
                 for i in range(self.num_agents):
                     # torch.multiprocessing.spawn(self.train_agent, args=(i, obs, action_dict, rew, next_obs, dones))
-                    self.train_agent(i, obs, action_dict, rew, next_obs, dones)
+                    self.train_agent(0, i, obs, action_dict, rew, next_obs, dones)
 
             obs = next_obs
 
