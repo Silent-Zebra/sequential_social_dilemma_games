@@ -125,11 +125,15 @@ class Controller(object):
             # print(dones["agent-0"])
 
             if train_agents:
+                def train_agent(agent_i):
+                    self.agent_policies[i].q_learn_update(
+                        reshape_obs_for_convfc(obs[agent_i]), action_dict[agent_i],
+                        rew[agent_i], reshape_obs_for_convfc(next_obs[agent_i]), dones[agent_i])
+
                 for i in range(self.num_agents):
                     agent_i = "agent-{}".format(i)
-                    # print(reshape_obs_for_convfc(obs[agent_i]).shape)
-                    self.agent_policies[i].q_learn_update(reshape_obs_for_convfc(obs[agent_i]), action_dict[agent_i], rew[agent_i], reshape_obs_for_convfc(next_obs[agent_i]), dones[agent_i])
-            # 1/0
+                    torch.multiprocessing.spawn(train_agent, args=(agent_i))
+                    # train_agent(agent_i)
 
             obs = next_obs
 
