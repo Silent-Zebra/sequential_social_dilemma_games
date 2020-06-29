@@ -8,6 +8,7 @@ import torch.nn.functional as F
 
 from collections import deque
 
+import ray
 
 replay_buffer_capacity = int(1e6)
 
@@ -66,9 +67,10 @@ class ReplayBuffer:
         return len(self.memory)
 
 
+@ray.remote
 class DQNAgent:
 
-    def __init__(self, action_space_low, action_space_high, neural_net, replay_buffer=None, batch_size=8, tau=1e-3,
+    def __init__(self, action_space_low, action_space_high, neural_net, replay_buffer=None, batch_size=20, tau=1e-3,
                  eps_start=0.9, eps_end=0.01, eps_decay=0.999, lr=0.01, gamma=0.99, episode_reward_history_len=500):
         self.action_space_low = action_space_low
         self.action_space_high = action_space_high # inclusive
@@ -180,7 +182,9 @@ class DQNAgent:
 
         return maxQ
 
-    def act(self, state, epsilon=0.):
+    def act(self, state, epsilon=None):
+        if epsilon is None:
+            epsilon = self.epsilon
 
         # Epsilon-greedy action
         if np.random.random() < epsilon:

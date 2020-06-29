@@ -11,6 +11,8 @@ import os
 
 import torch
 
+import ray
+
 
 harvest_default_params = {
     'lr_init': 0.00136,
@@ -20,10 +22,11 @@ harvest_default_params = {
 
 
 def main(args):
+    ray.init()
     controller = Controller()
     path = os.path.abspath(os.path.dirname(__file__)) # just saves in current directory right now
 
-    epochs = 100
+    epochs = 50
     horizon_len = 50
     print_every = 1
 

@@ -13,6 +13,8 @@ from social_dilemmas.envs.harvest import HarvestEnv
 
 from DQN import DQNAgent, NeuralNet, ConvFC
 
+import ray
+
 import torch
 
 
@@ -67,7 +69,7 @@ class Controller(object):
                                 input_size=15,
                                 hidden_size=64,
                                 output_size=self.action_dim)
-            self.agent_policies.append(DQNAgent(0, self.action_dim - 1, neural_net))
+            self.agent_policies.append(DQNAgent.remote(0, self.action_dim - 1, neural_net))
 
         self.env.reset()
 
@@ -75,7 +77,7 @@ class Controller(object):
         # print(id)
         # print(i)
         agent_i = "agent-{}".format(i)
-        self.agent_policies[i].q_learn_update(
+        self.agent_policies[i].q_learn_update.remote(
             reshape_obs_for_convfc(obs[agent_i]), action_dict[agent_i],
             rew[agent_i], reshape_obs_for_convfc(next_obs[agent_i]),
             dones[agent_i])
@@ -85,7 +87,7 @@ class Controller(object):
     #         # torch.multiprocessing.spawn(self.train_agent, args=(i, obs, action_dict, rew, next_obs, dones))
     #         self.train_agent(id, i, obs, action_dict, rew, next_obs, dones)
 
-    def rollout(self, horizon=50, save_path=None, train_agents=True):
+    def rollout(self, horizon=50, save_path=None, train_agents=True, train_every=25):
         """ Rollout several timesteps of an episode of the environment.
 
         Args:
@@ -114,16 +116,22 @@ class Controller(object):
             # Start with just 1 past frame. Then can make it 3 or 4 past frames after
             # And then eventually use a RNN/LSTM set instead.
             action_dict = {}
+            if train_agents:
+                acts_rayobjs = [self.agent_policies[i].act.remote(reshape_obs_for_convfc(obs["agent-{}".format(i)])) for i in range(self.num_agents)]
+            else:
+                acts_rayobjs = [self.agent_policies[i].act.remote(reshape_obs_for_convfc(obs["agent-{}".format(i)]), epsilon=0) for i in range(self.num_agents)]
+            actions = ray.get(acts_rayobjs)
+            # print(actions)
+
             for i in range(self.num_agents):
                 agent_i = "agent-{}".format(i)
-                # print(obs[agent_i].shape)
-                if train_agents:
-                    action_dict[agent_i] = self.agent_policies[i].act(reshape_obs_for_convfc(obs[agent_i]), epsilon=self.agent_policies[i].epsilon)
-                else:
-                    action_dict[agent_i] = self.agent_policies[i].act(reshape_obs_for_convfc(obs[agent_i]))
-                    # self.agent_policies[i].act(obs[agent_i].reshape(
-                    # 1, obs[agent_i].shape[2], obs[agent_i].shape[0], obs[agent_i].shape[1] )) # batch size = 1 for 1 obs right now...
-
+                action_dict[agent_i] = actions[i]
+                # if train_agents:
+                #     # print(ray.get(self.agent_policies[i].act.remote(reshape_obs_for_convfc(obs[agent_i]))))
+                #     action_dict[agent_i] = self.agent_policies[i].act.remote(reshape_obs_for_convfc(obs[agent_i]))
+                # else:
+                #     action_dict[agent_i] = self.agent_policies[i].act.remote(reshape_obs_for_convfc(obs[agent_i]), epsilon=0)
+                #     # 1, obs[agent_i].shape[2], obs[agent_i].shape[0], obs[agent_i].shape[1] )) # batch size = 1 for 1 obs right now...
 
             # print(action_dict)
             # rand_action = np.random.randint(action_dim, size=self.num_agents)
@@ -139,7 +147,7 @@ class Controller(object):
             # print(rew["agent-0"])
             # print(dones["agent-0"])
 
-            if train_agents:
+            if train_agents and ((time_step + 1) % train_every == 0):
                 # torch.multiprocessing.spawn(self.train_parallel_agents, nprocs=10, args=(obs, action_dict, rew, next_obs, dones))
                 for i in range(self.num_agents):
                     self.train_agent(0, i, obs, action_dict, rew, next_obs, dones)
