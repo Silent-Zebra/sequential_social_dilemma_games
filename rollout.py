@@ -71,7 +71,9 @@ class Controller(object):
 
         self.env.reset()
 
-    def train_agent(self, i, obs, action_dict, rew, next_obs, dones):
+    def train_agent(self, id, i, obs, action_dict, rew, next_obs, dones):
+        print(id)
+        print(i)
         agent_i = "agent-{}".format(i)
         self.agent_policies[i].q_learn_update(
             reshape_obs_for_convfc(obs[agent_i]), action_dict[agent_i],
