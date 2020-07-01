@@ -171,7 +171,7 @@ class Controller(object):
         return rewards, observations, full_obs
 
     def render_rollout(self, horizon=50, path=None,
-                       render_type='pretty', fps=8):
+                       fps=8):
         """ Render a rollout into a video.
 
         Args:
@@ -187,22 +187,22 @@ class Controller(object):
                 os.makedirs(path)
         video_name = self.env_name + '_trajectory'
 
-        if render_type == 'pretty':
-            image_path = os.path.join(path, 'frames/')
-            if not os.path.exists(image_path):
-                os.makedirs(image_path)
-
-            rewards, observations, full_obs = self.rollout(
-                horizon=horizon, save_path=image_path)
-            utility_funcs.make_video_from_image_dir(path, image_path, fps=fps,
-                                                    video_name=video_name)
-
-            # Clean up images
-            shutil.rmtree(image_path)
-        else:
-            rewards, observations, full_obs = self.rollout(horizon=horizon, train_agents=False)
-            utility_funcs.make_video_from_rgb_imgs(full_obs, path, fps=fps,
-                                                   video_name=video_name)
+        # if render_type == 'pretty':
+        #     image_path = os.path.join(path, 'frames/')
+        #     if not os.path.exists(image_path):
+        #         os.makedirs(image_path)
+        #
+        #     rewards, observations, full_obs = self.rollout(
+        #         horizon=horizon, save_path=image_path, train_agents=False)
+        #     utility_funcs.make_video_from_image_dir(path, image_path, fps=fps,
+        #                                             video_name=video_name)
+        #
+        #     # Clean up images
+        #     shutil.rmtree(image_path)
+        # else:
+        rewards, observations, full_obs = self.rollout(horizon=horizon, train_agents=False)
+        utility_funcs.make_video_from_rgb_imgs(full_obs, path, fps=fps,
+                                               video_name=video_name)
 
 
 # def main(unused_argv):
