@@ -147,7 +147,7 @@ class DQNAgent:
     def push_experience(self, state, action, reward, next_state, done):
         self.replay_buffer.push((state, action, reward, next_state, done))
 
-    def q_learn_update(self, state, action, reward, next_state, done, batch_size=None):
+    def q_learn_update(self, batch_size=None):
         if batch_size is None:
             batch_size = self.batch_size
         # self.replay_buffer.push((state, action, reward, next_state, done))

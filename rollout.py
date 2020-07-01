@@ -81,10 +81,7 @@ class Controller(object):
             dones[agent_i])
 
         if train_agents:
-            self.agent_policies[i].q_learn_update.remote(
-                reshape_obs_for_convfc(obs[agent_i]), action_dict[agent_i],
-                rew[agent_i], reshape_obs_for_convfc(next_obs[agent_i]),
-                dones[agent_i])
+            self.agent_policies[i].q_learn_update.remote()
 
     # def train_parallel_agents(self, id, obs, action_dict, rew, next_obs, dones):
     #     for i in range(self.num_agents):
