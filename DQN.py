@@ -10,7 +10,7 @@ from collections import deque
 
 import ray
 
-replay_buffer_capacity = int(1e6)
+replay_buffer_capacity = int(1e5)
 
 
 # TODO replace with dynamic num hidden layers
@@ -70,8 +70,8 @@ class ReplayBuffer:
 @ray.remote
 class DQNAgent:
 
-    def __init__(self, action_space_low, action_space_high, neural_net, replay_buffer=None, batch_size=20, tau=1e-3,
-                 eps_start=0.9, eps_end=0.01, eps_decay=0.999, lr=0.01, gamma=0.99, episode_reward_history_len=500):
+    def __init__(self, action_space_low, action_space_high, neural_net, replay_buffer=None, batch_size=50, tau=1e-3,
+                 eps_start=0.8, eps_end=0.01, eps_decay=0.99, lr=0.01, gamma=0.99, episode_reward_history_len=500):
         self.action_space_low = action_space_low
         self.action_space_high = action_space_high # inclusive
         self.gamma = gamma

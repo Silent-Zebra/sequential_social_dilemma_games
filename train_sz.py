@@ -13,6 +13,9 @@ import torch
 
 import ray
 
+def average(lst):
+    return sum(lst) / len(lst)
+
 
 harvest_default_params = {
     'lr_init': 0.00136,
@@ -26,17 +29,18 @@ def main(args):
     controller = Controller()
     path = os.path.abspath(os.path.dirname(__file__)) # just saves in current directory right now
 
-    epochs = 50
-    horizon_len = 50
+    epochs = 200
+    horizon_len = 1000
+    train_every = 50
     print_every = 1
 
-
     for epoch in range(epochs):
-        rewards, observations, full_obs = controller.rollout(horizon_len, save_path=path)
+        rewards, observations, full_obs = controller.rollout(horizon_len, train_every=train_every, save_path=None)
 
         if epoch % print_every == 0:
             print("Epoch: {}".format(epoch))
             print(rewards)
+            print("Average reward: {}".format(average(rewards)))
             # for i in range(controller.num_agents):
                 # agent_i = "agent-{}".format(i)
                 # print(rewards[i])
