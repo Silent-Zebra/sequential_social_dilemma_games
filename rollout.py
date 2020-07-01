@@ -117,10 +117,9 @@ class Controller(object):
             # And then eventually use a RNN/LSTM set instead.
             action_dict = {}
             if train_agents:
-                acts_rayobjs = [self.agent_policies[i].act(reshape_obs_for_convfc(obs["agent-{}".format(i)])) for i in range(self.num_agents)]
+                actions = [self.agent_policies[i].act(reshape_obs_for_convfc(obs["agent-{}".format(i)])) for i in range(self.num_agents)]
             else:
-                acts_rayobjs = [self.agent_policies[i].act(reshape_obs_for_convfc(obs["agent-{}".format(i)]), epsilon=0) for i in range(self.num_agents)]
-            actions = ray.get(acts_rayobjs)
+                actions = [self.agent_policies[i].act(reshape_obs_for_convfc(obs["agent-{}".format(i)]), epsilon=0) for i in range(self.num_agents)]
             # print(actions)
 
             for i in range(self.num_agents):
