@@ -87,7 +87,7 @@ class Controller(object):
     #         # torch.multiprocessing.spawn(self.train_agent, args=(i, obs, action_dict, rew, next_obs, dones))
     #         self.train_agent(id, i, obs, action_dict, rew, next_obs, dones)
 
-    def rollout(self, horizon, train_every=100, save_path=None, train_agents=True):
+    def rollout(self, horizon, train_every=100, save_path=None, train_agents=True, print_act=False):
         """ Rollout several timesteps of an episode of the environment.
 
         Args:
@@ -117,9 +117,10 @@ class Controller(object):
             # And then eventually use a RNN/LSTM set instead.
             action_dict = {}
             if train_agents:
-                actions = [self.agent_policies[i].act(reshape_obs_for_convfc(obs["agent-{}".format(i)])) for i in range(self.num_agents)]
+                actions = [self.agent_policies[i].act(reshape_obs_for_convfc(obs["agent-{}".format(i)]), print_act=print_act) for i in range(self.num_agents)]
             else:
-                actions = [self.agent_policies[i].act(reshape_obs_for_convfc(obs["agent-{}".format(i)]), epsilon=0) for i in range(self.num_agents)]
+                # can choose eps=0 or something else after
+                actions = [self.agent_policies[i].act(reshape_obs_for_convfc(obs["agent-{}".format(i)]), print_act=print_act) for i in range(self.num_agents)]
             # print(actions)
 
             for i in range(self.num_agents):
@@ -200,7 +201,7 @@ class Controller(object):
         #     # Clean up images
         #     shutil.rmtree(image_path)
         # else:
-        rewards, observations, full_obs = self.rollout(horizon=horizon, train_agents=False)
+        rewards, observations, full_obs = self.rollout(horizon=horizon, train_agents=False, print_act=True)
         utility_funcs.make_video_from_rgb_imgs(full_obs, path, fps=fps,
                                                video_name=video_name)
         return rewards

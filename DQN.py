@@ -21,8 +21,8 @@ class NeuralNet(nn.Module):
 
 
     def forward(self, x):
-        output = F.relu(self.layer1(x))
-        output = F.relu(self.layer2(output))
+        output = F.leaky_relu(self.layer1(x))
+        output = F.leaky_relu(self.layer2(output))
         output = self.layer3(output)
         return output
 
@@ -39,12 +39,18 @@ class ConvFC(nn.Module):
 
     def forward(self, x):
         assert len(x.shape) >= 3
+        # print(x.shape)
         if len(x.shape) == 3:
             x = x.unsqueeze(0)
-        conv_output = F.relu(self.layer1(x))
+        conv_output = F.leaky_relu(self.layer1(x))
+        # print(conv_output)
         output = conv_output.reshape(-1, self.fc_size)
-        output = F.relu(self.layer2(output))
+        # print(output)
+        output = F.leaky_relu(self.layer2(output))
+        # print(output)
         output = self.layer3(output)
+        # print(output)
+
         return output
 
 
@@ -67,8 +73,8 @@ class ReplayBuffer:
 
 class DQNAgent:
 
-    def __init__(self, action_space_low, action_space_high, neural_net, replay_buffer=None, batch_size=100, tau=1e-3,
-                 eps_start=0.9, eps_end=0.1, eps_decay=0.995, lr=0.01, gamma=1.00, episode_reward_history_len=1000):
+    def __init__(self, action_space_low, action_space_high, neural_net, replay_buffer=None, batch_size=100, tau=3e-3,
+                 eps_start=0.9, eps_end=0.1, eps_decay=0.995, lr=0.005, gamma=1.00, episode_reward_history_len=1000):
         self.action_space_low = action_space_low
         self.action_space_high = action_space_high # inclusive
         self.gamma = gamma
@@ -90,7 +96,7 @@ class DQNAgent:
         # SGD optim seems to help convergence to TFT in a TFT + defect pool. Probably something
         # weird going on with Adam - or maybe momentum is a bad idea when opponents change
         # relatively frequently
-        self.optimizer = torch.optim.SGD(self.q_being_updated.parameters(), self.lr)
+        self.optimizer = torch.optim.Adam(self.q_being_updated.parameters(), self.lr)
         self.reward_total = 0
         self.episode_reward = 0
         self.episode_reward_history = deque(maxlen=episode_reward_history_len)
@@ -125,7 +131,9 @@ class DQNAgent:
 
         next_states_maxQ = next_states_maxQ[0]
 
+        # print(predicted_Q)
         targets = (rewards + discount * next_states_maxQ * (1-dones))
+        # print(targets)
 
         targets = targets.view(-1, 1)
         loss = F.mse_loss(reshaped_predicted_Q, targets)
@@ -153,7 +161,7 @@ class DQNAgent:
 
 
 
-    def Q(self, states, neural_net_to_use, no_grad = False):
+    def Q(self, states, neural_net_to_use, no_grad=False, print_act=False, normalize_rgb=True):
         """This function returns, for a set of states as input, a set of
         sets of Q values as output, where each subset contains the Q values
         across all possible actions. Then we use max or argmax to extract
@@ -163,13 +171,24 @@ class DQNAgent:
         states = np.array(states)
         states = torch.from_numpy(states)
         states = states.float()
+
+        # print(states)
+
+        # print(neural_net_to_use.layer1.weight)
+
         states = states.to(device=self.device)
+
+        if normalize_rgb:
+            states = states / states.max() # just scale to 0-1 for now.
 
         if no_grad:
             with torch.no_grad():
                 output = neural_net_to_use(states)
         else:
             output = neural_net_to_use(states)
+
+        if print_act:
+            print(output.cpu())
 
         return output.cpu()
 
@@ -182,7 +201,7 @@ class DQNAgent:
 
         return maxQ
 
-    def act(self, state, epsilon=None):
+    def act(self, state, epsilon=None, print_act=False):
         if epsilon is None:
             epsilon = self.epsilon
 
@@ -190,6 +209,6 @@ class DQNAgent:
         if np.random.random() < epsilon:
             return np.random.randint(self.action_space_low, self.action_space_high + 1)
 
-        best_action = torch.argmax(self.Q(state, self.q_being_updated, no_grad=True))
+        best_action = torch.argmax(self.Q(state, self.q_being_updated, no_grad=True, print_act=print_act))
 
         return best_action.item()
