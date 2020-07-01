@@ -45,8 +45,10 @@ def main(args):
 
 
     # visualization
-    controller.render_rollout(horizon=horizon_len, path=path)
-
+    rewards = controller.render_rollout(horizon=horizon_len, path=path)
+    print(rewards)
+    print("Average reward: {}".format(average(rewards)))
+    
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("SSD/RL Stuff")

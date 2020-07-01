@@ -203,6 +203,7 @@ class Controller(object):
         rewards, observations, full_obs = self.rollout(horizon=horizon, train_agents=False)
         utility_funcs.make_video_from_rgb_imgs(full_obs, path, fps=fps,
                                                video_name=video_name)
+        return rewards
 
 
 # def main(unused_argv):
