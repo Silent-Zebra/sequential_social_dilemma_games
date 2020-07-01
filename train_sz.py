@@ -11,7 +11,6 @@ import os
 
 import torch
 
-import ray
 
 def average(lst):
     return sum(lst) / len(lst)
@@ -25,7 +24,6 @@ harvest_default_params = {
 
 
 def main(args):
-    ray.init()
     controller = Controller()
     path = os.path.abspath(os.path.dirname(__file__)) # just saves in current directory right now
 

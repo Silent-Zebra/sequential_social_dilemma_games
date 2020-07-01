@@ -13,7 +13,6 @@ from social_dilemmas.envs.harvest import HarvestEnv
 
 from DQN import DQNAgent, NeuralNet, ConvFC
 
-import ray
 
 import torch
 
@@ -66,7 +65,7 @@ class Controller(object):
                                 input_size=15,
                                 hidden_size=64,
                                 output_size=self.action_dim)
-            self.agent_policies.append(DQNAgent.remote(0, self.action_dim - 1, neural_net))
+            self.agent_policies.append(DQNAgent(0, self.action_dim - 1, neural_net))
 
         self.env.reset()
 
@@ -74,14 +73,14 @@ class Controller(object):
         # print(id)
         # print(i)
         agent_i = "agent-{}".format(i)
-        self.agent_policies[i].push_experience.remote(
+        self.agent_policies[i].push_experience(
             reshape_obs_for_convfc(obs[agent_i]),
             action_dict[agent_i],
             rew[agent_i], reshape_obs_for_convfc(next_obs[agent_i]),
             dones[agent_i])
 
         if train_agents:
-            self.agent_policies[i].q_learn_update.remote()
+            self.agent_policies[i].q_learn_update()
 
     # def train_parallel_agents(self, id, obs, action_dict, rew, next_obs, dones):
     #     for i in range(self.num_agents):
@@ -118,9 +117,9 @@ class Controller(object):
             # And then eventually use a RNN/LSTM set instead.
             action_dict = {}
             if train_agents:
-                acts_rayobjs = [self.agent_policies[i].act.remote(reshape_obs_for_convfc(obs["agent-{}".format(i)])) for i in range(self.num_agents)]
+                acts_rayobjs = [self.agent_policies[i].act(reshape_obs_for_convfc(obs["agent-{}".format(i)])) for i in range(self.num_agents)]
             else:
-                acts_rayobjs = [self.agent_policies[i].act.remote(reshape_obs_for_convfc(obs["agent-{}".format(i)]), epsilon=0) for i in range(self.num_agents)]
+                acts_rayobjs = [self.agent_policies[i].act(reshape_obs_for_convfc(obs["agent-{}".format(i)]), epsilon=0) for i in range(self.num_agents)]
             actions = ray.get(acts_rayobjs)
             # print(actions)
 

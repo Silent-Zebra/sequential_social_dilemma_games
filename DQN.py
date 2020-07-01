@@ -8,8 +8,6 @@ import torch.nn.functional as F
 
 from collections import deque
 
-import ray
-
 replay_buffer_capacity = int(1e6)
 
 
@@ -67,7 +65,6 @@ class ReplayBuffer:
         return len(self.memory)
 
 
-@ray.remote
 class DQNAgent:
 
     def __init__(self, action_space_low, action_space_high, neural_net, replay_buffer=None, batch_size=50, tau=1e-3,
