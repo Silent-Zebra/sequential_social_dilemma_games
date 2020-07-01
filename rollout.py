@@ -87,7 +87,7 @@ class Controller(object):
     #         # torch.multiprocessing.spawn(self.train_agent, args=(i, obs, action_dict, rew, next_obs, dones))
     #         self.train_agent(id, i, obs, action_dict, rew, next_obs, dones)
 
-    def rollout(self, horizon, train_every=100, save_path=None, train_agents=True):
+    def rollout(self, horizon, train_every=1, save_path=None, train_agents=True):
         """ Rollout several timesteps of an episode of the environment.
 
         Args:
