@@ -179,7 +179,7 @@ class DQNAgent:
         states = states.to(device=self.device)
 
         if normalize_rgb:
-            states = states / states.max() # just scale to 0-1 for now.
+            states = states / 255 # just scale to 0-1 for now.
 
         if no_grad:
             with torch.no_grad():
