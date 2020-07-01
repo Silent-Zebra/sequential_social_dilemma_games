@@ -29,7 +29,7 @@ def main(args):
 
     epochs = 50
     horizon_len = 1000
-    train_every = 50
+    train_every = 20
     print_every = 1
 
     for epoch in range(epochs):
@@ -48,7 +48,7 @@ def main(args):
     rewards = controller.render_rollout(horizon=horizon_len, path=path)
     print(rewards)
     print("Average reward: {}".format(average(rewards)))
-    
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("SSD/RL Stuff")
