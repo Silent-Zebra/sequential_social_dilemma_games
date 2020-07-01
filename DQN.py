@@ -68,7 +68,7 @@ class ReplayBuffer:
 class DQNAgent:
 
     def __init__(self, action_space_low, action_space_high, neural_net, replay_buffer=None, batch_size=50, tau=1e-3,
-                 eps_start=0.7, eps_end=0.01, eps_decay=0.99, lr=0.01, gamma=1.00, episode_reward_history_len=1000):
+                 eps_start=0.9, eps_end=0.1, eps_decay=0.995, lr=0.01, gamma=1.00, episode_reward_history_len=1000):
         self.action_space_low = action_space_low
         self.action_space_high = action_space_high # inclusive
         self.gamma = gamma
