@@ -144,10 +144,13 @@ class DQNAgent:
         for target_param, curr_param in zip(target_net.parameters(), curr_net.parameters()):
             target_param.data.copy_(self.tau * curr_param.data + (1-self.tau) * target_param.data)
 
+    def push_experience(self, state, action, reward, next_state, done):
+        self.replay_buffer.push((state, action, reward, next_state, done))
+
     def q_learn_update(self, state, action, reward, next_state, done, batch_size=None):
         if batch_size is None:
             batch_size = self.batch_size
-        self.replay_buffer.push((state, action, reward, next_state, done))
+        # self.replay_buffer.push((state, action, reward, next_state, done))
         self.train_nn(self.gamma, batch_size)
         self.epsilon = max(self.eps_end, self.eps_decay * self.epsilon)
 

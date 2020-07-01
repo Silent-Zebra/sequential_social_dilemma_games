@@ -31,7 +31,7 @@ def main(args):
 
     epochs = 50
     horizon_len = 1000
-    train_every = 1
+    train_every = 50
     print_every = 1
 
     for epoch in range(epochs):
