@@ -50,17 +50,17 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
     act_space = single_env.action_space
 
     # Each policy can have a different configuration (including custom model)
-    def gen_policy():
-        # return (PPOPolicyGraph, obs_space, act_space, {})
-        return (A3CPolicyGraph, obs_space, act_space, {})
-
-    # Setup PPO with an ensemble of `num_policies` different policy graphs
-    policy_graphs = {}
-    for i in range(num_agents):
-        policy_graphs['agent-' + str(i)] = gen_policy()
-
-    def policy_mapping_fn(agent_id):
-        return agent_id
+    # def gen_policy():
+    #     # return (PPOPolicyGraph, obs_space, act_space, {})
+    #     return (A3CPolicyGraph, obs_space, act_space, {})
+    #
+    # # Setup PPO with an ensemble of `num_policies` different policy graphs
+    # policy_graphs = {}
+    # for i in range(num_agents):
+    #     policy_graphs['agent-' + str(i)] = gen_policy()
+    #
+    # def policy_mapping_fn(agent_id):
+    #     return agent_id
 
     # register the custom model
     model_name = "conv_to_fc_net"
@@ -101,14 +101,16 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
                 "num_gpus_per_worker": num_gpus_per_worker,   # Can be a fraction
                 "num_cpus_per_worker": num_cpus_per_worker,   # Can be a fraction
                 "entropy_coeff": hparams['entropy_coeff'],
-                "multiagent": {
-                    "policy_graphs": policy_graphs,
-                    "policy_mapping_fn": tune.function(policy_mapping_fn),
-                },
+                # "multiagent": {
+                #     "policy_graphs": policy_graphs,
+                #     "policy_mapping_fn": tune.function(policy_mapping_fn),
+                # },
                 "model": {"custom_model": "conv_to_fc_net", "use_lstm": True,
                           "lstm_cell_size": 128}
 
     })
+
+
     return algorithm, env_name, config
 
 
