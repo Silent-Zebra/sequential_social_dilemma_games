@@ -24,6 +24,10 @@ import numpy as np
 #
 
 
+def average(lst):
+    return sum(lst) / len(lst)
+
+
 harvest_default_params = {
     'lr_init': 0.00136,
     'lr_final': 0.000028,
@@ -48,14 +52,27 @@ def on_episode_start(info):
 
 def on_episode_end(info):
     episode = info["episode"]
-    i = 1
+    num_agents = 0
+    episode_rewards = []
     for (_, policy_id), reward in episode.agent_rewards.items():
+        num_agents += 1
         episode.policy_rewards[policy_id].append(reward)
-        print("agent-{}: {}".format(i, reward))
-        i += 1
+        episode_rewards.append(reward)
+        print("agent-{}: {}".format(num_agents, reward))
     # print("episode {} ended with length {}".format(
     #     episode.episode_id, episode.length))
     # print(episode.policy_rewards)
+    print("Sum Reward: {}".format(sum(episode_rewards)))
+    print("Avg Reward: {}".format(average(episode_rewards)))
+    print("Min Reward: {}".format(min(episode_rewards)))
+    # Gini coefficient calc
+    sum_abs_diff = 0
+    for i in range(num_agents):
+        for j in range(num_agents):
+            sum_abs_diff += np.abs(episode_rewards[i] - episode_rewards[j])
+    gini_coeff = sum_abs_diff / (2 * num_agents * sum(episode_rewards))
+    print("Gini Coefficient {}".format(gini_coeff))
+
     sys.stdout.flush()
 
 
