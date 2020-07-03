@@ -18,9 +18,7 @@ from models.conv_to_fc_net import ConvToFCNet
 from typing import Dict
 import numpy as np
 
-from ray.rllib.env import BaseEnv
-from ray.rllib.policy import Policy
-from ray.rllib.policy.sample_batch import SampleBatch
+from ray.rllib.env.base_env import BaseEnv
 from ray.rllib.evaluation import MultiAgentEpisode, RolloutWorker
 from ray.rllib.agents.callbacks import DefaultCallbacks
 
@@ -42,7 +40,7 @@ cleanup_default_params = {
 
 class MyCallbacks(DefaultCallbacks):
     def on_episode_start(self, worker: RolloutWorker, base_env: BaseEnv,
-                         policies: Dict[str, Policy],
+                         policies,
                          episode: MultiAgentEpisode, **kwargs):
         print("episode {} started".format(episode.episode_id))
         episode.policy_rewards = collections.defaultdict(list)
@@ -57,7 +55,7 @@ class MyCallbacks(DefaultCallbacks):
     #     episode.user_data["pole_angles"].append(pole_angle)
 
     def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv,
-                       policies: Dict[str, Policy], episode: MultiAgentEpisode,
+                       policies, episode: MultiAgentEpisode,
                        **kwargs):
         for (_, policy_id), reward in episode.agent_rewards.items():
             episode.policy_rewards[policy_id].append(reward)
