@@ -7,12 +7,22 @@ from ray.rllib.models import ModelCatalog
 from ray.tune import run_experiments
 from ray.tune.registry import register_env
 # import tensorflow as tf
+import collections
 
 import argparse
 
 from social_dilemmas.envs.harvest import HarvestEnv
 from social_dilemmas.envs.cleanup import CleanupEnv
 from models.conv_to_fc_net import ConvToFCNet
+
+from typing import Dict
+import numpy as np
+
+from ray.rllib.env import BaseEnv
+from ray.rllib.policy import Policy
+from ray.rllib.policy.sample_batch import SampleBatch
+from ray.rllib.evaluation import MultiAgentEpisode, RolloutWorker
+from ray.rllib.agents.callbacks import DefaultCallbacks
 
 
 # args = tf.app.args.args
@@ -28,6 +38,56 @@ cleanup_default_params = {
     'lr_init': 0.00126,
     'lr_final': 0.000012,
     'entropy_coeff': -.00176}
+
+
+class MyCallbacks(DefaultCallbacks):
+    def on_episode_start(self, worker: RolloutWorker, base_env: BaseEnv,
+                         policies: Dict[str, Policy],
+                         episode: MultiAgentEpisode, **kwargs):
+        print("episode {} started".format(episode.episode_id))
+        episode.policy_rewards = collections.defaultdict(list)
+        # episode.user_data["pole_angles"] = []
+        # episode.hist_data["pole_angles"] = []
+
+    # def on_episode_step(self, worker: RolloutWorker, base_env: BaseEnv,
+    #                     episode: MultiAgentEpisode, **kwargs):
+    #     pole_angle = abs(episode.last_observation_for()[2])
+    #     raw_angle = abs(episode.last_raw_obs_for()[2])
+    #     assert pole_angle == raw_angle
+    #     episode.user_data["pole_angles"].append(pole_angle)
+
+    def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv,
+                       policies: Dict[str, Policy], episode: MultiAgentEpisode,
+                       **kwargs):
+        for (_, policy_id), reward in episode.agent_rewards.items():
+            episode.policy_rewards[policy_id].append(reward)
+        # pole_angle = np.mean(episode.user_data["pole_angles"])
+        print("episode {} ended with length {}".format(
+            episode.episode_id, episode.length))
+        print(episode.policy_rewards)
+        # episode.custom_metrics["pole_angle"] = pole_angle
+        # episode.hist_data["pole_angles"] = episode.user_data["pole_angles"]
+
+    # def on_sample_end(self, worker: RolloutWorker, samples: SampleBatch,
+    #                   **kwargs):
+    #     print("returned sample batch of size {}".format(samples.count))
+
+    # def on_train_result(self, trainer, result: dict, **kwargs):
+    #     print("trainer.train() result: {} -> {} episodes".format(
+    #         trainer, result["episodes_this_iter"]))
+    #     # you can mutate the result dict to add new fields to return
+    #     result["callback_ok"] = True
+
+    # def on_postprocess_trajectory(
+    #         self, worker: RolloutWorker, episode: MultiAgentEpisode,
+    #         agent_id: str, policy_id: str, policies: Dict[str, Policy],
+    #         postprocessed_batch: SampleBatch,
+    #         original_batches: Dict[str, SampleBatch], **kwargs):
+    #     print("postprocessed {} steps".format(postprocessed_batch.count))
+    #     if "num_batches" not in episode.custom_metrics:
+    #         episode.custom_metrics["num_batches"] = 0
+    #     episode.custom_metrics["num_batches"] += 1
+
 
 
 def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
@@ -98,6 +158,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
                 "num_cpus_for_driver": cpus_for_driver,
                 "num_gpus_per_worker": num_gpus_per_worker,   # Can be a fraction
                 "num_cpus_per_worker": num_cpus_per_worker,   # Can be a fraction
+                "callbacks": MyCallbacks,
                 # "multiagent": {
                 #     "policy_graphs": policy_graphs,
                 #     "policy_mapping_fn": tune.function(policy_mapping_fn),
@@ -159,7 +220,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_agents", type=int, default="5", help="Number of agent policies")
     parser.add_argument("--train_batch_size", type=int, default="30000", help="Size of the total dataset over which one epoch is computed.")
     parser.add_argument("--checkpoint_frequency", type=int, default="20", help="Number of steps before a checkpoint is saved.")
-    parser.add_argument("--training_iterations", type=int, default="10000", help="Total number of steps to train for")
+    parser.add_argument("--training_iterations", type=int, default="500", help="Total number of steps to train for")
     parser.add_argument("--num_cpus", type=int, default="2", help="Number of available CPUs")
     parser.add_argument("--num_gpus", type=int, default="0", help="Number of available GPUs")
     parser.add_argument("--use_gpus_for_workers", action="store_true", help="Set to true to run workers on GPUs rather than CPUs")
