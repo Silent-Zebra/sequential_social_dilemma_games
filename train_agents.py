@@ -18,11 +18,6 @@ from models.conv_to_fc_net import ConvToFCNet
 from typing import Dict
 import numpy as np
 
-from ray.rllib.env.base_env import BaseEnv
-from ray.rllib.evaluation import MultiAgentEpisode, RolloutWorker
-from ray.rllib.agents.callbacks import DefaultCallbacks
-
-
 # args = tf.app.args.args
 #
 
@@ -38,53 +33,23 @@ cleanup_default_params = {
     'entropy_coeff': -.00176}
 
 
-class MyCallbacks(DefaultCallbacks):
-    def on_episode_start(self, worker: RolloutWorker, base_env: BaseEnv,
-                         policies,
-                         episode: MultiAgentEpisode, **kwargs):
-        print("episode {} started".format(episode.episode_id))
-        episode.policy_rewards = collections.defaultdict(list)
-        # episode.user_data["pole_angles"] = []
-        # episode.hist_data["pole_angles"] = []
+def on_episode_start(info):
+    episode = info["episode"]
+    print("episode {} started".format(episode.episode_id))
+    episode.policy_rewards = collections.defaultdict(list)
 
-    # def on_episode_step(self, worker: RolloutWorker, base_env: BaseEnv,
-    #                     episode: MultiAgentEpisode, **kwargs):
-    #     pole_angle = abs(episode.last_observation_for()[2])
-    #     raw_angle = abs(episode.last_raw_obs_for()[2])
-    #     assert pole_angle == raw_angle
-    #     episode.user_data["pole_angles"].append(pole_angle)
+# def on_episode_step(info):
+#     episode = info["episode"]
+#     pole_angle = abs(episode.last_observation_for()[2])
+#     episode.user_data["pole_angles"].append(pole_angle)
 
-    def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv,
-                       policies, episode: MultiAgentEpisode,
-                       **kwargs):
-        for (_, policy_id), reward in episode.agent_rewards.items():
-            episode.policy_rewards[policy_id].append(reward)
-        # pole_angle = np.mean(episode.user_data["pole_angles"])
-        print("episode {} ended with length {}".format(
-            episode.episode_id, episode.length))
-        print(episode.policy_rewards)
-        # episode.custom_metrics["pole_angle"] = pole_angle
-        # episode.hist_data["pole_angles"] = episode.user_data["pole_angles"]
-
-    # def on_sample_end(self, worker: RolloutWorker, samples: SampleBatch,
-    #                   **kwargs):
-    #     print("returned sample batch of size {}".format(samples.count))
-
-    # def on_train_result(self, trainer, result: dict, **kwargs):
-    #     print("trainer.train() result: {} -> {} episodes".format(
-    #         trainer, result["episodes_this_iter"]))
-    #     # you can mutate the result dict to add new fields to return
-    #     result["callback_ok"] = True
-
-    # def on_postprocess_trajectory(
-    #         self, worker: RolloutWorker, episode: MultiAgentEpisode,
-    #         agent_id: str, policy_id: str, policies: Dict[str, Policy],
-    #         postprocessed_batch: SampleBatch,
-    #         original_batches: Dict[str, SampleBatch], **kwargs):
-    #     print("postprocessed {} steps".format(postprocessed_batch.count))
-    #     if "num_batches" not in episode.custom_metrics:
-    #         episode.custom_metrics["num_batches"] = 0
-    #     episode.custom_metrics["num_batches"] += 1
+def on_episode_end(info):
+    episode = info["episode"]
+    for (_, policy_id), reward in episode.agent_rewards.items():
+        episode.policy_rewards[policy_id].append(reward)
+    print("episode {} ended with length {}".format(
+        episode.episode_id, episode.length))
+    print(episode.policy_rewards)
 
 
 
@@ -156,7 +121,10 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
                 "num_cpus_for_driver": cpus_for_driver,
                 "num_gpus_per_worker": num_gpus_per_worker,   # Can be a fraction
                 "num_cpus_per_worker": num_cpus_per_worker,   # Can be a fraction
-                "callbacks": MyCallbacks,
+                "callbacks": {
+                    "on_episode_start": tune.function(on_episode_start),
+                    "on_episode_end": tune.function(on_episode_end),
+                },
                 # "multiagent": {
                 #     "policy_graphs": policy_graphs,
                 #     "policy_mapping_fn": tune.function(policy_mapping_fn),
