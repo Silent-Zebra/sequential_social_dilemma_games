@@ -93,9 +93,6 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
     config.update({
                 "train_batch_size": train_batch_size,
                 "horizon": 1000,
-                "lr_schedule":
-                [[0, hparams['lr_init']],
-                    [20000000, hparams['lr_final']]],
                 "num_workers": num_workers,
                 "num_gpus": gpus_for_driver,  # The number of GPUs for the driver
                 "num_cpus_for_driver": cpus_for_driver,
@@ -110,6 +107,11 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
                           "lstm_cell_size": 128}
 
     })
+
+    if algorithm in ["A2C", "A3C"]:
+        config.update({"lr_schedule":
+                [[0, hparams['lr_init']],
+                    [20000000, hparams['lr_final']]]})
 
 
     return algorithm, env_name, config
