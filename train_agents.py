@@ -15,6 +15,8 @@ from social_dilemmas.envs.harvest import HarvestEnv
 from social_dilemmas.envs.cleanup import CleanupEnv
 from models.conv_to_fc_net import ConvToFCNet
 
+import sys
+
 from typing import Dict
 import numpy as np
 
@@ -36,6 +38,7 @@ cleanup_default_params = {
 def on_episode_start(info):
     episode = info["episode"]
     print("episode {} started".format(episode.episode_id))
+    sys.stdout.flush()
     episode.policy_rewards = collections.defaultdict(list)
 
 # def on_episode_step(info):
@@ -50,6 +53,8 @@ def on_episode_end(info):
     print("episode {} ended with length {}".format(
         episode.episode_id, episode.length))
     print(episode.policy_rewards)
+    sys.stdout.flush()
+
 
 
 
