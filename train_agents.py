@@ -37,8 +37,8 @@ cleanup_default_params = {
 
 def on_episode_start(info):
     episode = info["episode"]
-    print("episode {} started".format(episode.episode_id))
-    sys.stdout.flush()
+    # print("episode {} started".format(episode.episode_id))
+    # sys.stdout.flush()
     episode.policy_rewards = collections.defaultdict(list)
 
 # def on_episode_step(info):
@@ -48,11 +48,14 @@ def on_episode_start(info):
 
 def on_episode_end(info):
     episode = info["episode"]
+    i = 1
     for (_, policy_id), reward in episode.agent_rewards.items():
         episode.policy_rewards[policy_id].append(reward)
-    print("episode {} ended with length {}".format(
-        episode.episode_id, episode.length))
-    print(episode.policy_rewards)
+        print("agent-{}: {}".format(i, reward))
+        i += 1
+    # print("episode {} ended with length {}".format(
+    #     episode.episode_id, episode.length))
+    # print(episode.policy_rewards)
     sys.stdout.flush()
 
 
