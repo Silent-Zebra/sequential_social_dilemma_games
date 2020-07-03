@@ -52,13 +52,13 @@ def on_episode_start(info):
 
 def on_episode_end(info):
     episode = info["episode"]
-    num_agents = 0
+    n_agents = 0
     episode_rewards = []
     for (_, policy_id), reward in episode.agent_rewards.items():
-        num_agents += 1
+        n_agents += 1
         episode.policy_rewards[policy_id].append(reward)
         episode_rewards.append(reward)
-        print("agent-{}: {}".format(num_agents, reward))
+        print("agent-{}: {}".format(n_agents, reward))
     # print("episode {} ended with length {}".format(
     #     episode.episode_id, episode.length))
     # print(episode.policy_rewards)
@@ -67,10 +67,10 @@ def on_episode_end(info):
     print("Min Reward: {}".format(min(episode_rewards)))
     # Gini coefficient calc
     sum_abs_diff = 0
-    for i in range(num_agents):
-        for j in range(num_agents):
+    for i in range(n_agents):
+        for j in range(n_agents):
             sum_abs_diff += np.abs(episode_rewards[i] - episode_rewards[j])
-    gini_coeff = sum_abs_diff / (2 * num_agents * sum(episode_rewards))
+    gini_coeff = sum_abs_diff / (2 * n_agents * sum(episode_rewards))
     print("Gini Coefficient {}".format(gini_coeff))
 
     sys.stdout.flush()
