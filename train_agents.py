@@ -73,7 +73,7 @@ def on_episode_end(info):
     gini_coeff = sum_abs_diff / (2 * n_agents * sum(episode_rewards))
     print("Gini Coefficient: {}".format(gini_coeff))
     # 20:20 ratio calc
-    n_20 = max(1, np.round(n_agents / 5, 0))
+    n_20 = max(1, int(np.round(n_agents / 5, 0)))
     sorted_rews = sorted(episode_rewards)
     min_20 = sum(sorted_rews[:n_20])
     max_20 = sum(sorted_rews[n_agents-n_20:])
