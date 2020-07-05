@@ -77,9 +77,15 @@ def on_episode_end(info):
     sorted_rews = sorted(episode_rewards)
     min_20 = sum(sorted_rews[:n_20])
     max_20 = sum(sorted_rews[n_agents-n_20:])
-    ratio_20 = max_20 / min_20
-    print("20:20 Ratio: {}".format(ratio_20))
-    print("Max-min Ratio: {}".format(sorted_rews[-1] / sorted_rews[0]))
+    if min_20 == 0:
+        print("20:20 Ratio: Undefined")
+    else:
+        ratio_20 = max_20 / min_20
+        print("20:20 Ratio: {}".format(ratio_20))
+    if sorted_rews[0] == 0:
+        print("Max-min Ratio: Undefined")
+    else:
+        print("Max-min Ratio: {}".format(sorted_rews[-1] / sorted_rews[0]))
 
     sys.stdout.flush()
 
