@@ -65,6 +65,7 @@ def on_episode_end(info):
     print("Sum Reward: {}".format(sum(episode_rewards)))
     print("Avg Reward: {}".format(average(episode_rewards)))
     print("Min Reward: {}".format(min(episode_rewards)))
+    print("Max Reward: {}".format(max(episode_rewards)))
     # Gini coefficient calc
     sum_abs_diff = 0
     for i in range(n_agents):
