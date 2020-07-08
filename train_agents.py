@@ -91,8 +91,9 @@ def on_episode_end(info):
 
     # Use custom metrics if still not working
     # or consider
-    # from pprint import pprint
-    # pprint(vars(your_object))
+    from pprint import pprint
+    pprint(vars(info["env"]))
+    pprint(vars(info["episode"]))
     # on info and info["env"] and info["episode"] to see what's available
 
     # Need env.agents
