@@ -88,6 +88,11 @@ def on_episode_end(info):
     else:
         print("Max-min Ratio: {}".format(sorted_rews[-1] / sorted_rews[0]))
 
+
+    print(info)
+    # Need env.agents
+    # for agent in self.agents.values():
+
     sys.stdout.flush()
 
 
