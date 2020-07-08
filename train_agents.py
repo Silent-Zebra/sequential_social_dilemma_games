@@ -89,9 +89,10 @@ def on_episode_end(info):
         print("Max-min Ratio: {}".format(sorted_rews[-1] / sorted_rews[0]))
 
 
-    print(info)
     # Need env.agents
-    # for agent in self.agents.values():
+    print("Extrinsic Rewards:")
+    for agent in info["env"].agents.values():
+        print(agent.extrinsic_reward_record)
 
     sys.stdout.flush()
 

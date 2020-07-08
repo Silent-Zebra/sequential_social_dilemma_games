@@ -143,7 +143,7 @@ class MapEnv(MultiAgentEnv):
                 arr[row, col] = ascii_list[row][col]
         return arr
 
-    def step(self, actions):
+    def step(self, actions, intrinsic_reward=False):
         """Takes in a dict of actions and converts them to a map update
 
         Parameters
@@ -184,6 +184,7 @@ class MapEnv(MultiAgentEnv):
 
         observations = {}
         rewards = {}
+        rewards_list = []
         dones = {}
         info = {}
         for agent in self.agents.values():
@@ -191,8 +192,27 @@ class MapEnv(MultiAgentEnv):
             rgb_arr = self.map_to_colors(agent.get_state(), self.color_map)
             rgb_arr = self.rotate_view(agent.orientation, rgb_arr)
             observations[agent.agent_id] = rgb_arr
-            rewards[agent.agent_id] = agent.compute_reward()
+            rew = agent.compute_reward()
+            rewards[agent.agent_id] = rew
+            rewards_list.append(rew)
             dones[agent.agent_id] = agent.get_done()
+        if intrinsic_reward:
+            # Start with a constant parameter, later we'll have it as a
+            # property of each agent, such as agent.svo = 0.9 or something
+            # And then have a more sophisticated calc
+            # Well this is not SVO, or is it? See the original psych SVO paper
+            # Just a weighting of rewards of others vs own
+            # Well alpha,beta=1 means every agent maxes sum reward of all
+            alpha = 1.0
+            beta = 1.0
+            total_rew_sum = sum(rewards_list)
+            for agent in self.agents.values():
+                self_rew = rewards[agent.agent_id]
+                others_rew_sum = total_rew_sum - self_rew
+                intrins_rew = alpha * self_rew + beta * others_rew_sum
+                # update the reward dict
+                rewards[agent.agent_id] = intrins_rew
+
         dones["__all__"] = np.any(list(dones.values()))
         return observations, rewards, dones, info
 
