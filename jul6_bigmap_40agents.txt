@@ -1,0 +1,281 @@
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:523: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint8 = np.dtype([("qint8", np.int8, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:524: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint8 = np.dtype([("quint8", np.uint8, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:525: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint16 = np.dtype([("qint16", np.int16, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:526: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint16 = np.dtype([("quint16", np.uint16, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:527: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint32 = np.dtype([("qint32", np.int32, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:532: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  np_resource = np.dtype([("resource", np.ubyte, 1)])
+Process STDOUT and STDERR is being redirected to /tmp/ray/session_2020-07-07_12-01-07_31814/logs.
+Waiting for redis server at 127.0.0.1:43113 to respond...
+Waiting for redis server at 127.0.0.1:62514 to respond...
+Warning: Capping object memory store to 20.0GB. To increase this further, specify `object_store_memory` when calling ray.init() or ray start.
+Starting the Plasma object store with 20.0 GB memory using /dev/shm.
+
+======================================================================
+View the web UI at http://localhost:8889/notebooks/ray_ui.ipynb?token=fe1846307dbca9dd8e100947c74c6b95d991b56b55a48a65
+======================================================================
+
+== Status ==
+Using FIFO scheduling algorithm.
+Resources requested: 0/2 CPUs, 0/1 GPUs
+Memory usage on this node: 11.0/202.5 GB
+
+Created LogSyncer for /h/zhaostep/ray_results/harvest_A3C/A3C_harvest_env_0_2020-07-07_12-01-08h_rwvtkm -> 
+== Status ==
+Using FIFO scheduling algorithm.
+Resources requested: 2.0/2 CPUs, 0/1 GPUs
+Memory usage on this node: 11.0/202.5 GB
+Result logdir: /h/zhaostep/ray_results/harvest_A3C
+RUNNING trials:
+ - A3C_harvest_env_0:	RUNNING
+
+Error processing event.
+Traceback (most recent call last):
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 261, in _process_events
+    result = self.trial_executor.fetch_result(trial)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 211, in fetch_result
+    result = ray.get(trial_future[0])
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/worker.py", line 2386, in get
+    raise value
+ray.worker.RayTaskError: [36mray_A3CAgent:train()[39m (pid=31902, host=gpu020)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/agent.py", line 244, in __init__
+    Trainable.__init__(self, config, logger_creator)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/tune/trainable.py", line 87, in __init__
+    self._setup(copy.deepcopy(self.config))
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/agent.py", line 312, in _setup
+    self._init()
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/a3c/a3c.py", line 58, in _init
+    self.env_creator, policy_cls)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/agent.py", line 413, in make_local_evaluator
+    config["local_evaluator_tf_session_args"]
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/agent.py", line 533, in _make_evaluator
+    output_creator=output_creator)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/evaluation/policy_evaluator.py", line 217, in __init__
+    self.env = env_creator(env_context)
+  File "train_agents.py", line 102, in env_creator
+    return HarvestEnv(num_agents=num_agents)
+  File "/cpu008/zhaostep/Ethics-RL/sequential_social_dilemma_games/social_dilemmas/envs/harvest.py", line 18, in __init__
+    super().__init__(ascii_map, num_agents, render)
+  File "/cpu008/zhaostep/Ethics-RL/sequential_social_dilemma_games/social_dilemmas/envs/map_env.py", line 96, in __init__
+    self.setup_agents()
+  File "/cpu008/zhaostep/Ethics-RL/sequential_social_dilemma_games/social_dilemmas/envs/harvest.py", line 40, in setup_agents
+    spawn_point = self.spawn_point()
+  File "/cpu008/zhaostep/Ethics-RL/sequential_social_dilemma_games/social_dilemmas/envs/map_env.py", line 638, in spawn_point
+    assert is_free_cell, 'There are not enough spawn points! Check your map?'
+AssertionError: There are not enough spawn points! Check your map?
+
+Worker ip unknown, skipping log sync for /h/zhaostep/ray_results/harvest_A3C/A3C_harvest_env_0_2020-07-07_12-01-08h_rwvtkm
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:523: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint8 = np.dtype([("qint8", np.int8, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:524: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint8 = np.dtype([("quint8", np.uint8, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:525: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint16 = np.dtype([("qint16", np.int16, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:526: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint16 = np.dtype([("quint16", np.uint16, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:527: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint32 = np.dtype([("qint32", np.int32, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:532: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  np_resource = np.dtype([("resource", np.ubyte, 1)])
+Attempting to recover trial state from last checkpoint.
+== Status ==
+Using FIFO scheduling algorithm.
+Resources requested: 2.0/2 CPUs, 0/1 GPUs
+Memory usage on this node: 11.5/202.5 GB
+Result logdir: /h/zhaostep/ray_results/harvest_A3C
+RUNNING trials:
+ - A3C_harvest_env_0:	RUNNING, 1 failures: /h/zhaostep/ray_results/harvest_A3C/A3C_harvest_env_0_2020-07-07_12-01-08h_rwvtkm/error_2020-07-07_12-01-20.txt
+
+Error processing event.
+Traceback (most recent call last):
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 261, in _process_events
+    result = self.trial_executor.fetch_result(trial)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 211, in fetch_result
+    result = ray.get(trial_future[0])
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/worker.py", line 2386, in get
+    raise value
+ray.worker.RayTaskError: [36mray_A3CAgent:train()[39m (pid=31915, host=gpu020)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/agent.py", line 244, in __init__
+    Trainable.__init__(self, config, logger_creator)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/tune/trainable.py", line 87, in __init__
+    self._setup(copy.deepcopy(self.config))
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/agent.py", line 312, in _setup
+    self._init()
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/a3c/a3c.py", line 58, in _init
+    self.env_creator, policy_cls)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/agent.py", line 413, in make_local_evaluator
+    config["local_evaluator_tf_session_args"]
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/agent.py", line 533, in _make_evaluator
+    output_creator=output_creator)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/evaluation/policy_evaluator.py", line 217, in __init__
+    self.env = env_creator(env_context)
+  File "train_agents.py", line 102, in env_creator
+    return HarvestEnv(num_agents=num_agents)
+  File "/cpu008/zhaostep/Ethics-RL/sequential_social_dilemma_games/social_dilemmas/envs/harvest.py", line 18, in __init__
+    super().__init__(ascii_map, num_agents, render)
+  File "/cpu008/zhaostep/Ethics-RL/sequential_social_dilemma_games/social_dilemmas/envs/map_env.py", line 96, in __init__
+    self.setup_agents()
+  File "/cpu008/zhaostep/Ethics-RL/sequential_social_dilemma_games/social_dilemmas/envs/harvest.py", line 40, in setup_agents
+    spawn_point = self.spawn_point()
+  File "/cpu008/zhaostep/Ethics-RL/sequential_social_dilemma_games/social_dilemmas/envs/map_env.py", line 638, in spawn_point
+    assert is_free_cell, 'There are not enough spawn points! Check your map?'
+AssertionError: There are not enough spawn points! Check your map?
+
+Worker ip unknown, skipping log sync for /h/zhaostep/ray_results/harvest_A3C/A3C_harvest_env_0_2020-07-07_12-01-08h_rwvtkm
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:523: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint8 = np.dtype([("qint8", np.int8, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:524: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint8 = np.dtype([("quint8", np.uint8, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:525: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint16 = np.dtype([("qint16", np.int16, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:526: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint16 = np.dtype([("quint16", np.uint16, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:527: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint32 = np.dtype([("qint32", np.int32, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:532: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  np_resource = np.dtype([("resource", np.ubyte, 1)])
+Attempting to recover trial state from last checkpoint.
+== Status ==
+Using FIFO scheduling algorithm.
+Resources requested: 2.0/2 CPUs, 0/1 GPUs
+Memory usage on this node: 11.4/202.5 GB
+Result logdir: /h/zhaostep/ray_results/harvest_A3C
+RUNNING trials:
+ - A3C_harvest_env_0:	RUNNING, 2 failures: /h/zhaostep/ray_results/harvest_A3C/A3C_harvest_env_0_2020-07-07_12-01-08h_rwvtkm/error_2020-07-07_12-01-26.txt
+
+Error processing event.
+Traceback (most recent call last):
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 261, in _process_events
+    result = self.trial_executor.fetch_result(trial)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 211, in fetch_result
+    result = ray.get(trial_future[0])
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/worker.py", line 2386, in get
+    raise value
+ray.worker.RayTaskError: [36mray_A3CAgent:train()[39m (pid=31904, host=gpu020)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/agent.py", line 244, in __init__
+    Trainable.__init__(self, config, logger_creator)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/tune/trainable.py", line 87, in __init__
+    self._setup(copy.deepcopy(self.config))
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/agent.py", line 312, in _setup
+    self._init()
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/a3c/a3c.py", line 58, in _init
+    self.env_creator, policy_cls)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/agent.py", line 413, in make_local_evaluator
+    config["local_evaluator_tf_session_args"]
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/agent.py", line 533, in _make_evaluator
+    output_creator=output_creator)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/evaluation/policy_evaluator.py", line 217, in __init__
+    self.env = env_creator(env_context)
+  File "train_agents.py", line 102, in env_creator
+    return HarvestEnv(num_agents=num_agents)
+  File "/cpu008/zhaostep/Ethics-RL/sequential_social_dilemma_games/social_dilemmas/envs/harvest.py", line 18, in __init__
+    super().__init__(ascii_map, num_agents, render)
+  File "/cpu008/zhaostep/Ethics-RL/sequential_social_dilemma_games/social_dilemmas/envs/map_env.py", line 96, in __init__
+    self.setup_agents()
+  File "/cpu008/zhaostep/Ethics-RL/sequential_social_dilemma_games/social_dilemmas/envs/harvest.py", line 40, in setup_agents
+    spawn_point = self.spawn_point()
+  File "/cpu008/zhaostep/Ethics-RL/sequential_social_dilemma_games/social_dilemmas/envs/map_env.py", line 638, in spawn_point
+    assert is_free_cell, 'There are not enough spawn points! Check your map?'
+AssertionError: There are not enough spawn points! Check your map?
+
+Worker ip unknown, skipping log sync for /h/zhaostep/ray_results/harvest_A3C/A3C_harvest_env_0_2020-07-07_12-01-08h_rwvtkm
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:523: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint8 = np.dtype([("qint8", np.int8, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:524: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint8 = np.dtype([("quint8", np.uint8, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:525: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint16 = np.dtype([("qint16", np.int16, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:526: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint16 = np.dtype([("quint16", np.uint16, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:527: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint32 = np.dtype([("qint32", np.int32, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:532: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  np_resource = np.dtype([("resource", np.ubyte, 1)])
+Attempting to recover trial state from last checkpoint.
+== Status ==
+Using FIFO scheduling algorithm.
+Resources requested: 2.0/2 CPUs, 0/1 GPUs
+Memory usage on this node: 11.2/202.5 GB
+Result logdir: /h/zhaostep/ray_results/harvest_A3C
+RUNNING trials:
+ - A3C_harvest_env_0:	RUNNING, 3 failures: /h/zhaostep/ray_results/harvest_A3C/A3C_harvest_env_0_2020-07-07_12-01-08h_rwvtkm/error_2020-07-07_12-01-32.txt
+
+Error processing event.
+Traceback (most recent call last):
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/tune/trial_runner.py", line 261, in _process_events
+    result = self.trial_executor.fetch_result(trial)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/tune/ray_trial_executor.py", line 211, in fetch_result
+    result = ray.get(trial_future[0])
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/worker.py", line 2386, in get
+    raise value
+ray.worker.RayTaskError: [36mray_A3CAgent:train()[39m (pid=32053, host=gpu020)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/agent.py", line 244, in __init__
+    Trainable.__init__(self, config, logger_creator)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/tune/trainable.py", line 87, in __init__
+    self._setup(copy.deepcopy(self.config))
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/agent.py", line 312, in _setup
+    self._init()
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/a3c/a3c.py", line 58, in _init
+    self.env_creator, policy_cls)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/agent.py", line 413, in make_local_evaluator
+    config["local_evaluator_tf_session_args"]
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/agents/agent.py", line 533, in _make_evaluator
+    output_creator=output_creator)
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/rllib/evaluation/policy_evaluator.py", line 217, in __init__
+    self.env = env_creator(env_context)
+  File "train_agents.py", line 102, in env_creator
+    return HarvestEnv(num_agents=num_agents)
+  File "/cpu008/zhaostep/Ethics-RL/sequential_social_dilemma_games/social_dilemmas/envs/harvest.py", line 18, in __init__
+    super().__init__(ascii_map, num_agents, render)
+  File "/cpu008/zhaostep/Ethics-RL/sequential_social_dilemma_games/social_dilemmas/envs/map_env.py", line 96, in __init__
+    self.setup_agents()
+  File "/cpu008/zhaostep/Ethics-RL/sequential_social_dilemma_games/social_dilemmas/envs/harvest.py", line 40, in setup_agents
+    spawn_point = self.spawn_point()
+  File "/cpu008/zhaostep/Ethics-RL/sequential_social_dilemma_games/social_dilemmas/envs/map_env.py", line 638, in spawn_point
+    assert is_free_cell, 'There are not enough spawn points! Check your map?'
+AssertionError: There are not enough spawn points! Check your map?
+
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:523: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint8 = np.dtype([("qint8", np.int8, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:524: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint8 = np.dtype([("quint8", np.uint8, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:525: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint16 = np.dtype([("qint16", np.int16, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:526: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_quint16 = np.dtype([("quint16", np.uint16, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:527: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  _np_qint32 = np.dtype([("qint32", np.int32, 1)])
+/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/tensorflow/python/framework/dtypes.py:532: FutureWarning: Passing (type, 1) or '1type' as a synonym of type is deprecated; in a future version of numpy, it will be understood as (type, (1,)) / '(1,)type'.
+  np_resource = np.dtype([("resource", np.ubyte, 1)])
+Commencing experiment harvest_A3C
+Worker ip unknown, skipping log sync for /h/zhaostep/ray_results/harvest_A3C/A3C_harvest_env_0_2020-07-07_12-01-08h_rwvtkm
+== Status ==
+Using FIFO scheduling algorithm.
+Resources requested: 0.0/2 CPUs, 0/1 GPUs
+Memory usage on this node: 11.4/202.5 GB
+Result logdir: /h/zhaostep/ray_results/harvest_A3C
+ERROR trials:
+ - A3C_harvest_env_0:	ERROR, 4 failures: /h/zhaostep/ray_results/harvest_A3C/A3C_harvest_env_0_2020-07-07_12-01-08h_rwvtkm/error_2020-07-07_12-01-42.txt
+
+== Status ==
+Using FIFO scheduling algorithm.
+Resources requested: 0.0/2 CPUs, 0/1 GPUs
+Memory usage on this node: 11.4/202.5 GB
+Result logdir: /h/zhaostep/ray_results/harvest_A3C
+ERROR trials:
+ - A3C_harvest_env_0:	ERROR, 4 failures: /h/zhaostep/ray_results/harvest_A3C/A3C_harvest_env_0_2020-07-07_12-01-08h_rwvtkm/error_2020-07-07_12-01-42.txt
+
+Traceback (most recent call last):
+  File "train_agents.py", line 238, in <module>
+    main(args)
+  File "train_agents.py", line 216, in main
+    "config": config,
+  File "/h/zhaostep/.conda/envs/causal/lib/python3.6/site-packages/ray/tune/tune.py", line 124, in run_experiments
+    raise TuneError("Trials did not complete", errored_trials)
+ray.tune.error.TuneError: ('Trials did not complete', [A3C_harvest_env_0])
+srun: error: gpu020: task 0: Exited with exit code 1
