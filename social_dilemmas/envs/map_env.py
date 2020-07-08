@@ -143,7 +143,7 @@ class MapEnv(MultiAgentEnv):
                 arr[row, col] = ascii_list[row][col]
         return arr
 
-    def step(self, actions, intrinsic_reward=False):
+    def step(self, actions, intrinsic_reward=True):
         """Takes in a dict of actions and converts them to a map update
 
         Parameters
