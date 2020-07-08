@@ -81,7 +81,6 @@ class Agent(object):
 
     def compute_reward(self):
         reward = self.reward_this_turn
-        self.extrinsic_reward_record = reward
         self.reward_this_turn = 0
         return reward
 

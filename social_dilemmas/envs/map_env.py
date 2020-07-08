@@ -194,6 +194,7 @@ class MapEnv(MultiAgentEnv):
             observations[agent.agent_id] = rgb_arr
             rew = agent.compute_reward()
             rewards[agent.agent_id] = rew
+            agent.extrinsic_reward_sum += rew
             rewards_list.append(rew)
             dones[agent.agent_id] = agent.get_done()
         if intrinsic_reward:
@@ -243,6 +244,7 @@ class MapEnv(MultiAgentEnv):
             #                               agent.row_size, agent.col_size)
             rgb_arr = self.map_to_colors(agent.get_state(), self.color_map)
             observations[agent.agent_id] = rgb_arr
+            agent.extrinsic_reward_sum = 0
         return observations
 
     @property
