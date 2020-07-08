@@ -6,8 +6,8 @@
 
 HARVEST_MAP = [
     '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',
-    '@   P   P  P  AA    P AAAA A    P  A P  P A  AA  A P @',
-    '@  P  A  A   A A    P    AAAA A   AA    A  AAA A  A  @',
+    '@   P   P  P  AA P  P P AA A P  P  A P  P A  AA  A P @',
+    '@  P  A  A   A A    A    AAAA A   AA    A  AAA A  A  @',
     '@ P  AA AAA  AAAA    A     A AA AAAA    AA  AA AA  P @',
     '@ A  AAA A    AA  A AAA  AA  A A A     A A AA A A    @',
     '@AAA  A A    A   AAA A AA A A AA     A A A    A   A P@',
