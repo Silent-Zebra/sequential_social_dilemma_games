@@ -91,15 +91,15 @@ def on_episode_end(info):
 
     # Use custom metrics if still not working
     # or consider
-    from pprint import pprint
-    pprint(vars(info["env"]))
-    pprint(vars(info["episode"]))
+    # from pprint import pprint
+    # pprint(vars(info["env"]))
+    # pprint(vars(info["episode"]))
     # on info and info["env"] and info["episode"] to see what's available
 
     # Need env.agents
-    # print("Extrinsic Rewards:")
-    # for agent in info["env"].agents.values():
-    #     print(agent.extrinsic_reward_record)
+    print("Extrinsic Rewards:")
+    for agent in info["env"]["envs"][0].agents.values():
+        print(agent.extrinsic_reward_record)
 
     sys.stdout.flush()
 
