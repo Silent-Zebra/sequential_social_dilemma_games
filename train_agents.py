@@ -103,7 +103,7 @@ def on_episode_end(info):
     # print(info["env"].envs[0].agents)
     # print(info["env"].envs[0].agents.values())
 
-    for agent in info["env"]["envs"][0].agents.values():
+    for agent in info["env"].envs[0].agents.values():
         print(agent.extrinsic_reward_record)
 
     sys.stdout.flush()
