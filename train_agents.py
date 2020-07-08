@@ -98,7 +98,7 @@ def on_episode_end(info):
 
     # Need env.agents
     print("Extrinsic Rewards:")
-    print(info["env"]["envs"])
+    print(info["env"].envs)
     print(info["env"].envs[0])
     print(info["env"].envs[0].agents)
     print(info["env"].envs[0].agents.values())
