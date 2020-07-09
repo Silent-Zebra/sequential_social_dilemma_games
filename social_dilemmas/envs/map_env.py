@@ -214,7 +214,11 @@ class MapEnv(MultiAgentEnv):
                 others_rew_avg = others_rew_sum / num_others
 
                 # Social Diversity paper SVO algo
-                theta_r = np.arctan(others_rew_avg / self_rew)
+                eps = 1e-5
+                if self_rew == 0:
+                    theta_r = np.arctan(others_rew_avg / (self_rew + eps))
+                else:
+                    theta_r = np.arctan(others_rew_avg / self_rew)
                 # assuming homogeneous altruistic agents for now
                 theta_svo = np.pi / 2
                 weight_svo = 0.2 # from paper, later TODO pass as arg
