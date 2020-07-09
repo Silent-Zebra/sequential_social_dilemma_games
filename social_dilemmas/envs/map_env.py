@@ -204,8 +204,8 @@ class MapEnv(MultiAgentEnv):
             # Well this is not SVO, or is it? See the original psych SVO paper
             # Just a weighting of rewards of others vs own
             # Well alpha,beta=1 means every agent maxes sum reward of all
-            alpha = 0.2
-            beta = 0.8
+            alpha = 0.5
+            beta = 0.5
             total_rew_sum = sum(rewards_list)
             for agent in self.agents.values():
                 self_rew = rewards[agent.agent_id]
