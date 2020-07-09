@@ -212,7 +212,18 @@ class MapEnv(MultiAgentEnv):
                 others_rew_sum = total_rew_sum - self_rew
                 num_others = len(rewards_list) - 1
                 others_rew_avg = others_rew_sum / num_others
-                intrins_rew = alpha * self_rew + beta * others_rew_avg
+
+                # Social Diversity paper SVO algo
+                theta_r = np.arctan(others_rew_avg / self_rew)
+                # assuming homogeneous altruistic agents for now
+                theta_svo = np.pi / 2
+                weight_svo = 0.2 # from paper, later TODO pass as arg
+                reg = weight_svo * (np.abs(theta_svo - theta_r))
+                intrins_rew = self_rew - reg
+
+                # simple weighting
+                # intrins_rew = alpha * self_rew + beta * others_rew_avg
+
                 # update the reward dict
                 rewards[agent.agent_id] = intrins_rew
 
