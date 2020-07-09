@@ -50,18 +50,8 @@ def on_episode_start(info):
 #     pole_angle = abs(episode.last_observation_for()[2])
 #     episode.user_data["pole_angles"].append(pole_angle)
 
-def on_episode_end(info):
-    episode = info["episode"]
-    n_agents = 0
-    episode_rewards = []
-    for (_, policy_id), reward in episode.agent_rewards.items():
-        n_agents += 1
-        episode.policy_rewards[policy_id].append(reward)
-        episode_rewards.append(reward)
-        print("agent-{}: {}".format(n_agents, reward))
-    # print("episode {} ended with length {}".format(
-    #     episode.episode_id, episode.length))
-    # print(episode.policy_rewards)
+
+def print_episode_stats(n_agents, episode_rewards):
     print("Sum Reward: {}".format(sum(episode_rewards)))
     print("Avg Reward: {}".format(average(episode_rewards)))
     print("Min Reward: {}".format(min(episode_rewards)))
@@ -77,7 +67,7 @@ def on_episode_end(info):
     n_20 = max(1, int(np.round(n_agents / 5, 0)))
     sorted_rews = sorted(episode_rewards)
     min_20 = sum(sorted_rews[:n_20])
-    max_20 = sum(sorted_rews[n_agents-n_20:])
+    max_20 = sum(sorted_rews[n_agents - n_20:])
     if min_20 == 0:
         print("20:20 Ratio: Undefined")
     else:
@@ -88,6 +78,38 @@ def on_episode_end(info):
     else:
         print("Max-min Ratio: {}".format(sorted_rews[-1] / sorted_rews[0]))
 
+    sys.stdout.flush()
+
+
+
+def on_episode_end(info):
+    episode = info["episode"]
+    n_agents = 0
+    episode_rewards = []
+    for (_, policy_id), reward in episode.agent_rewards.items():
+        n_agents += 1
+        episode.policy_rewards[policy_id].append(reward)
+        episode_rewards.append(reward)
+        print("agent-{}: {}".format(n_agents, reward))
+    # print("episode {} ended with length {}".format(
+    #     episode.episode_id, episode.length))
+    # print(episode.policy_rewards)
+
+    # print_episode_stats(n_agents, episode_rewards)
+
+    print("Extrinsic Rewards:")
+    # print(info["env"].envs)
+    # print(info["env"].envs[0])
+    # print(info["env"].envs[0].agents)
+    # print(info["env"].envs[0].agents.values())
+    extrinsic_rewards = []
+
+    for agent in info["env"].envs[0].agents.values():
+        print(agent.extrinsic_reward_sum)
+        extrinsic_rewards.append(agent.extrinsic_reward_sum)
+
+    print_episode_stats(n_agents, extrinsic_rewards)
+
 
     # Use custom metrics if still not working
     # or consider
@@ -96,15 +118,7 @@ def on_episode_end(info):
     # pprint(vars(info["episode"]))
     # on info and info["env"] and info["episode"] to see what's available
 
-    # Need env.agents
-    print("Extrinsic Rewards:")
-    # print(info["env"].envs)
-    # print(info["env"].envs[0])
-    # print(info["env"].envs[0].agents)
-    # print(info["env"].envs[0].agents.values())
 
-    for agent in info["env"].envs[0].agents.values():
-        print(agent.extrinsic_reward_sum)
 
     sys.stdout.flush()
 
