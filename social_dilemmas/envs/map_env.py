@@ -185,7 +185,7 @@ class MapEnv(MultiAgentEnv):
         observations = {}
         rewards = {}
         rewards_list = []
-        intrins_rew_list = []
+        smoothed_rew_list = []
         dones = {}
         info = {}
         for agent in self.agents.values():
@@ -200,8 +200,8 @@ class MapEnv(MultiAgentEnv):
             dones[agent.agent_id] = agent.get_done()
             if intrinsic_reward:
                 lambdgamma = 0.9 # smoothing hyperparam here TODO make arg/setting
-                agent.smoothed_intrinsic_reward = lambdgamma * agent.smoothed_intrinsic_reward + rew
-                intrins_rew_list.append(agent.smoothed_intrinsic_reward)
+                agent.smoothed_extrinsic_reward = lambdgamma * agent.smoothed_extrinsic_reward + rew
+                smoothed_rew_list.append(agent.smoothed_extrinsic_reward)
         if intrinsic_reward:
             # Start with a constant parameter, later we'll have it as a
             # property of each agent, such as agent.svo = 0.9 or something
@@ -209,33 +209,49 @@ class MapEnv(MultiAgentEnv):
             # Well this is not SVO, or is it? See the original psych SVO paper
             # Just a weighting of rewards of others vs own
             # Well alpha,beta=1 means every agent maxes sum reward of all
-            # alpha = 0.5
-            # beta = 0.5
+            # w_a = 0.5
+            # w_b = 0.5
 
-            # Now all intrinsic, smoothed rewards
-            total_rew_sum = sum(intrins_rew_list)
+            alpha = 5.0
+            beta = 0.05
+
+
+
+            total_rew_sum = sum(smoothed_rew_list)
             old_rewards = rewards.copy() # oh actually not even needed in formulation below
             for agent in self.agents.values():
                 extrinsic_self_rew = old_rewards[agent.agent_id]
-                self_rew = agent.smoothed_intrinsic_reward
+                self_rew = agent.smoothed_extrinsic_reward
                 others_rew_sum = total_rew_sum - self_rew
-                num_others = len(intrins_rew_list) - 1
+                num_others = len(smoothed_rew_list) - 1
                 others_rew_avg = others_rew_sum / num_others
 
                 # Social Diversity paper SVO algo
-                eps = 1e-5
-                if self_rew == 0:
-                    theta_r = np.arctan(others_rew_avg / (self_rew + eps))
-                else:
-                    theta_r = np.arctan(others_rew_avg / self_rew)
-                # assuming homogeneous altruistic agents for now
-                theta_svo = np.pi / 2 # hardcoded 90 degrees for now
-                weight_svo = 0.2 # from paper, later TODO pass as arg
-                reg = weight_svo * (np.abs(theta_svo - theta_r))
-                intrins_rew = extrinsic_self_rew - reg
+                # eps = 1e-5
+                # if self_rew == 0:
+                #     theta_r = np.arctan(others_rew_avg / (self_rew + eps))
+                # else:
+                #     theta_r = np.arctan(others_rew_avg / self_rew)
+                # # assuming homogeneous altruistic agents for now
+                # theta_svo = np.pi / 2 # hardcoded 90 degrees for now
+                # weight_svo = 0.2 # from paper, later TODO pass as arg
+                # reg = weight_svo * (np.abs(theta_svo - theta_r))
+                # intrins_rew = extrinsic_self_rew - reg
+
+                # Inequity aversion
+                smoothed_rew_arr = np.array(smoothed_rew_list)
+                # vengeance
+                neg_discrepancies = smoothed_rew_arr - self_rew # other reward - self rew # note agent's discrepancy with self is 0
+                neg_discrepancies = np.maximum(neg_discrepancies, 0)
+                # guilt
+                pos_discrepancies = self_rew - smoothed_rew_arr
+                pos_discrepancies = np.maximum(pos_discrepancies, 0)
+
+                intrins_rew = self_rew - alpha / num_others * np.sum(neg_discrepancies) \
+                              - beta / num_others * np.sum(pos_discrepancies)
 
                 # simple weighting
-                # intrins_rew = alpha * self_rew + beta * others_rew_avg
+                # intrins_rew = w_a * self_rew + w_b * others_rew_avg
 
                 # update the reward dict
                 rewards[agent.agent_id] = intrins_rew
@@ -271,7 +287,7 @@ class MapEnv(MultiAgentEnv):
             rgb_arr = self.map_to_colors(agent.get_state(), self.color_map)
             observations[agent.agent_id] = rgb_arr
             agent.extrinsic_reward_sum = 0
-            agent.smoothed_intrinsic_reward = 0
+            agent.smoothed_extrinsic_reward = 0
         return observations
 
     @property
