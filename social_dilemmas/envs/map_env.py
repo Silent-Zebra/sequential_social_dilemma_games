@@ -143,7 +143,7 @@ class MapEnv(MultiAgentEnv):
                 arr[row, col] = ascii_list[row][col]
         return arr
 
-    def step(self, actions, intrinsic_reward=True):
+    def step(self, actions, intrinsic_reward=False):
         """Takes in a dict of actions and converts them to a map update
 
         Parameters
@@ -215,8 +215,6 @@ class MapEnv(MultiAgentEnv):
             alpha = 5.0
             beta = 0.05
 
-
-
             total_rew_sum = sum(smoothed_rew_list)
             old_rewards = rewards.copy() # oh actually not even needed in formulation below
             for agent in self.agents.values():
@@ -247,7 +245,7 @@ class MapEnv(MultiAgentEnv):
                 pos_discrepancies = self_rew - smoothed_rew_arr
                 pos_discrepancies = np.maximum(pos_discrepancies, 0)
 
-                intrins_rew = self_rew - alpha / num_others * np.sum(neg_discrepancies) \
+                intrins_rew = extrinsic_self_rew - alpha / num_others * np.sum(neg_discrepancies) \
                               - beta / num_others * np.sum(pos_discrepancies)
 
                 # simple weighting
