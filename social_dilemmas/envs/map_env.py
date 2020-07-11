@@ -199,7 +199,7 @@ class MapEnv(MultiAgentEnv):
             rewards_list.append(rew)
             dones[agent.agent_id] = agent.get_done()
             if intrinsic_reward:
-                lambdgamma = 0.9 # smoothing hyperparam here TODO make arg/setting
+                lambdgamma = 0.975 # smoothing hyperparam here TODO make arg/setting
                 agent.smoothed_extrinsic_reward = lambdgamma * agent.smoothed_extrinsic_reward + rew
                 smoothed_rew_list.append(agent.smoothed_extrinsic_reward)
         if intrinsic_reward:
