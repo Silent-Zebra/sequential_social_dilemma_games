@@ -16,6 +16,8 @@ import tensorflow.contrib.slim as slim
 class ConvToFCNet(Model):
     def _build_layers_v2(self, input_dict, num_outputs, options):
 
+        print(input_dict)
+
         inputs = input_dict["obs"]
 
         print(inputs)
@@ -23,7 +25,7 @@ class ConvToFCNet(Model):
         import sys
         sys.stdout.flush()
 
-        inputs = input_dict["obs"][0]
+        # inputs = input_dict["obs"][0]
 
         print(inputs)
         print(inputs.shape)
