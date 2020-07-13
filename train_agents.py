@@ -238,6 +238,8 @@ def main(args):
     print('Commencing experiment', exp_name)
 
     print(config)
+    import sys
+    sys.stdout.flush()
 
     run_experiments({
         exp_name: {
