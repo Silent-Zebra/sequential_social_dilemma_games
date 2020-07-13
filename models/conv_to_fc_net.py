@@ -18,8 +18,8 @@ class ConvToFCNet(Model):
 
         inputs = input_dict["obs"]
 
-        print("ISINST")
-        print(isinstance(inputs, tuple))
+        print("TYPE-IS")
+        print(type(inputs))
         print(inputs)
         print(inputs.shape)
         import sys
