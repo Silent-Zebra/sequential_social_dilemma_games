@@ -208,6 +208,10 @@ class MapEnv(MultiAgentEnv):
                 agent.smoothed_rew_arr = np.array(smoothed_rew_list)
                 observations[agent.agent_id] = (observations[agent.agent_id], agent.smoothed_rew_arr)
 
+            print("SMOOTHED OBS")
+            print(observations)
+            import sys
+            sys.stdout.flush()
 
             # Start with a constant parameter, later we'll have it as a
             # property of each agent, such as agent.svo = 0.9 or something
@@ -295,6 +299,12 @@ class MapEnv(MultiAgentEnv):
             observations[agent.agent_id] = (rgb_arr, np.zeros(n_agents))
             agent.extrinsic_reward_sum = 0
             agent.smoothed_extrinsic_reward = 0
+
+        print("RESET OBS")
+        print(observations)
+        import sys
+        sys.stdout.flush()
+
         return observations
 
     @property
