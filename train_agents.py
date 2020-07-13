@@ -237,6 +237,8 @@ def main(args):
         exp_name = args.exp_name
     print('Commencing experiment', exp_name)
 
+    print(config)
+
     run_experiments({
         exp_name: {
             "run": alg_run,
