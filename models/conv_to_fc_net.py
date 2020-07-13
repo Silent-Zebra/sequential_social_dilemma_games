@@ -20,6 +20,9 @@ class ConvToFCNet(Model):
 
         inputs = input_dict["obs"]
 
+        if isinstance(inputs, tuple):
+            inputs = inputs[0]
+
         print(inputs)
         print(inputs.shape)
         import sys

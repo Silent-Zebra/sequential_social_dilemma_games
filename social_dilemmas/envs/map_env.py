@@ -203,15 +203,10 @@ class MapEnv(MultiAgentEnv):
                 agent.smoothed_extrinsic_reward = lambdgamma * agent.smoothed_extrinsic_reward + rew
                 smoothed_rew_list.append(agent.smoothed_extrinsic_reward)
 
-        print("Smooth rew list")
-        print(smoothed_rew_list)
-        import sys
-        sys.stdout.flush()
-
         if intrinsic_reward:
             for agent in self.agents.values():
                 agent.smoothed_rew_arr = np.array(smoothed_rew_list)
-                # observations[agent.agent_id] = (observations[agent.agent_id], agent.smoothed_rew_arr)
+                observations[agent.agent_id] = (observations[agent.agent_id], agent.smoothed_rew_arr)
 
 
             # Start with a constant parameter, later we'll have it as a
@@ -291,18 +286,13 @@ class MapEnv(MultiAgentEnv):
         observations = {}
         n_agents = len(self.agents.values())
 
-        print("nagents")
-        print(n_agents)
-        import sys
-        sys.stdout.flush()
-
         for agent in self.agents.values():
             agent.grid = map_with_agents
             # agent.grid = util.return_view(map_with_agents, agent.pos,
             #                               agent.row_size, agent.col_size)
             rgb_arr = self.map_to_colors(agent.get_state(), self.color_map)
-            observations[agent.agent_id] = rgb_arr
-            # observations[agent.agent_id] = (rgb_arr, np.zeros(n_agents))
+            # observations[agent.agent_id] = rgb_arr
+            observations[agent.agent_id] = (rgb_arr, np.zeros(n_agents))
             agent.extrinsic_reward_sum = 0
             agent.smoothed_extrinsic_reward = 0
         return observations
