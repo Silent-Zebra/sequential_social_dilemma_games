@@ -16,17 +16,17 @@ import tensorflow.contrib.slim as slim
 class ConvToFCNet(Model):
     def _build_layers_v2(self, input_dict, num_outputs, options):
 
-        print(input_dict)
-
         inputs = input_dict["obs"]
 
-        if isinstance(inputs, tuple):
-            inputs = inputs[0]
-
+        print("ISINST")
+        print(isinstance(inputs, tuple))
         print(inputs)
         print(inputs.shape)
         import sys
         sys.stdout.flush()
+
+        if isinstance(inputs, tuple):
+            inputs = inputs[0]
 
         # inputs = input_dict["obs"][0]
 
