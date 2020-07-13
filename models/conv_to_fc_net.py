@@ -52,6 +52,8 @@ class ConvToFCNet(Model):
 
             print(output)
             print(output.shape)
+
+            print(last_layer)
             sys.stdout.flush()
 
             return output, last_layer
