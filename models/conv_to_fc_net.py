@@ -23,6 +23,12 @@ class ConvToFCNet(Model):
         import sys
         sys.stdout.flush()
 
+        inputs = input_dict["obs"][0]
+
+        print(inputs)
+        print(inputs.shape)
+        sys.stdout.flush()
+
         hiddens = [32, 32]
         with tf.name_scope("custom_net"):
             inputs = slim.conv2d(
@@ -49,6 +55,10 @@ class ConvToFCNet(Model):
                 weights_initializer=normc_initializer(0.01),
                 activation_fn=None,
                 scope="fc_out")
+
+            # print(output)
+            # print(output.shape)
+
 
             print(output)
             print(output.shape)

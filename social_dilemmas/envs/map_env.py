@@ -192,7 +192,7 @@ class MapEnv(MultiAgentEnv):
             agent.grid = map_with_agents
             rgb_arr = self.map_to_colors(agent.get_state(), self.color_map)
             rgb_arr = self.rotate_view(agent.orientation, rgb_arr)
-            observations[agent.agent_id] = rgb_arr
+            observations[agent.agent_id] = (rgb_arr,1)
             rew = agent.compute_reward()
             rewards[agent.agent_id] = rew
             agent.extrinsic_reward_sum += rew
@@ -203,6 +203,8 @@ class MapEnv(MultiAgentEnv):
                 agent.smoothed_extrinsic_reward = lambdgamma * agent.smoothed_extrinsic_reward + rew
                 smoothed_rew_list.append(agent.smoothed_extrinsic_reward)
         if intrinsic_reward:
+            for agent in self.agents.values():
+                agent.smoothed_rew_arr = np.array(smoothed_rew_list)
             # Start with a constant parameter, later we'll have it as a
             # property of each agent, such as agent.svo = 0.9 or something
             # And then have a more sophisticated calc
@@ -237,19 +239,19 @@ class MapEnv(MultiAgentEnv):
                 # intrins_rew = extrinsic_self_rew - reg
 
                 # Inequity aversion
-                smoothed_rew_arr = np.array(smoothed_rew_list)
-                # vengeance
-                neg_discrepancies = smoothed_rew_arr - self_rew # other reward - self rew # note agent's discrepancy with self is 0
-                neg_discrepancies = np.maximum(neg_discrepancies, 0)
-                # guilt
-                pos_discrepancies = self_rew - smoothed_rew_arr
-                pos_discrepancies = np.maximum(pos_discrepancies, 0)
-
-                intrins_rew = extrinsic_self_rew - alpha / num_others * np.sum(neg_discrepancies) \
-                              - beta / num_others * np.sum(pos_discrepancies)
+                # smoothed_rew_arr = np.array(smoothed_rew_list)
+                # # vengeance
+                # neg_discrepancies = smoothed_rew_arr - self_rew # other reward - self rew # note agent's discrepancy with self is 0
+                # neg_discrepancies = np.maximum(neg_discrepancies, 0)
+                # # guilt
+                # pos_discrepancies = self_rew - smoothed_rew_arr
+                # pos_discrepancies = np.maximum(pos_discrepancies, 0)
+                #
+                # intrins_rew = extrinsic_self_rew - alpha / num_others * np.sum(neg_discrepancies) \
+                #               - beta / num_others * np.sum(pos_discrepancies)
 
                 # simple weighting
-                # intrins_rew = w_a * self_rew + w_b * others_rew_avg
+                intrins_rew = w_a * self_rew + w_b * others_rew_avg
 
                 # update the reward dict
                 rewards[agent.agent_id] = intrins_rew
@@ -283,7 +285,7 @@ class MapEnv(MultiAgentEnv):
             # agent.grid = util.return_view(map_with_agents, agent.pos,
             #                               agent.row_size, agent.col_size)
             rgb_arr = self.map_to_colors(agent.get_state(), self.color_map)
-            observations[agent.agent_id] = rgb_arr
+            observations[agent.agent_id] = (rgb_arr,1)
             agent.extrinsic_reward_sum = 0
             agent.smoothed_extrinsic_reward = 0
         return observations
