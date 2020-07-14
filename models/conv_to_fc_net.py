@@ -25,7 +25,9 @@ class ConvToFCNet(Model):
         import sys
         sys.stdout.flush()
 
+        smoothed_rews = []
         if isinstance(inputs, list):
+            smoothed_rews = inputs[1]
             inputs = inputs[0]
 
         # inputs = input_dict["obs"][0]
@@ -61,10 +63,18 @@ class ConvToFCNet(Model):
                 activation_fn=None,
                 scope="fc_out")
 
+
+            print(output)
+            print(output.shape)
+            sys.stdout.flush()
+
+
+            output = tf.concat([output, smoothed_rews])
+
             # print(output)
             # print(output.shape)
 
-
+            print("NEW OUTPUT")
             print(output)
             print(output.shape)
 
