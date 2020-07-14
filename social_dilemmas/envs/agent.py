@@ -1,6 +1,6 @@
 """Base class for an agent that defines the possible actions. """
 
-from gym.spaces import Box
+from gym.spaces import Box, Tuple
 from gym.spaces import Discrete
 import numpy as np
 import utility_funcs as util
@@ -155,8 +155,9 @@ HARVEST_VIEW_SIZE = 7
 
 class HarvestAgent(Agent):
 
-    def __init__(self, agent_id, start_pos, start_orientation, grid, view_len=HARVEST_VIEW_SIZE):
+    def __init__(self, agent_id, start_pos, start_orientation, grid, num_agents, view_len=HARVEST_VIEW_SIZE):
         self.view_len = view_len
+        self.num_agents = num_agents
         super().__init__(agent_id, start_pos, start_orientation, grid, view_len, view_len)
         self.update_agent_pos(start_pos)
         self.update_agent_rot(start_orientation)
@@ -173,8 +174,13 @@ class HarvestAgent(Agent):
 
     @property
     def observation_space(self):
-        return Box(low=0.0, high=0.0, shape=(2 * self.view_len + 1,
+        map_obs = Box(low=0.0, high=0.0, shape=(2 * self.view_len + 1,
                                              2 * self.view_len + 1, 3), dtype=np.float32)
+        rew_obs = Box(low=0.0, high=0.0, shape=(self.num_agents), dtype=np.float32)
+        return Tuple([map_obs, rew_obs])
+    # def observation_space(self):
+    #     return Box(low=0.0, high=0.0, shape=(2 * self.view_len + 1,
+    #                                          2 * self.view_len + 1, 3), dtype=np.float32)
 
     def hit(self, char):
         if char == 'F':
@@ -204,8 +210,9 @@ CLEANUP_VIEW_SIZE = 7
 
 
 class CleanupAgent(Agent):
-    def __init__(self, agent_id, start_pos, start_orientation, grid, view_len=CLEANUP_VIEW_SIZE):
+    def __init__(self, agent_id, start_pos, start_orientation, grid, num_agents, view_len=CLEANUP_VIEW_SIZE):
         self.view_len = view_len
+        self.num_agents = num_agents
         super().__init__(agent_id, start_pos, start_orientation, grid, view_len, view_len)
         # remember what you've stepped on
         self.update_agent_pos(start_pos)
@@ -217,8 +224,12 @@ class CleanupAgent(Agent):
 
     @property
     def observation_space(self):
-        return Box(low=0.0, high=0.0, shape=(2 * self.view_len + 1,
+        map_obs = Box(low=0.0, high=0.0, shape=(2 * self.view_len + 1,
                                              2 * self.view_len + 1, 3), dtype=np.float32)
+        rew_obs = Box(low=0.0, high=0.0, shape=(self.num_agents), dtype=np.float32)
+        return Tuple([map_obs, rew_obs])
+        # return Box(low=0.0, high=0.0, shape=(2 * self.view_len + 1,
+        #                                      2 * self.view_len + 1, 3), dtype=np.float32)
 
     # Ugh, this is gross, this leads to the actions basically being
     # defined in two places

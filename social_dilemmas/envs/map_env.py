@@ -203,15 +203,17 @@ class MapEnv(MultiAgentEnv):
                 agent.smoothed_extrinsic_reward = lambdgamma * agent.smoothed_extrinsic_reward + rew
                 smoothed_rew_list.append(agent.smoothed_extrinsic_reward)
 
-        if intrinsic_reward:
-            for agent in self.agents.values():
-                agent.smoothed_rew_arr = np.array(smoothed_rew_list)
-                observations[agent.agent_id] = (observations[agent.agent_id], agent.smoothed_rew_arr)
+        for agent in self.agents.values():
+            agent.smoothed_rew_arr = np.array(smoothed_rew_list)
+            observations[agent.agent_id] = (observations[agent.agent_id], agent.smoothed_rew_arr)
 
-            print("SMOOTHED OBS")
-            print(observations)
-            import sys
-            sys.stdout.flush()
+        print("SMOOTHED OBS")
+        print(observations)
+        import sys
+        sys.stdout.flush()
+
+
+        if intrinsic_reward:
 
             # Start with a constant parameter, later we'll have it as a
             # property of each agent, such as agent.svo = 0.9 or something
