@@ -21,11 +21,11 @@ class ConvToFCNet(Model):
         print("TYPE-IS")
         print(type(inputs))
         print(inputs)
-        print(inputs.shape)
+        # print(inputs.shape)
         import sys
         sys.stdout.flush()
 
-        if isinstance(inputs, tuple):
+        if isinstance(inputs, list):
             inputs = inputs[0]
 
         # inputs = input_dict["obs"][0]
