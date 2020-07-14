@@ -18,12 +18,12 @@ class ConvToFCNet(Model):
 
         inputs = input_dict["obs"]
 
-        print("TYPE-IS")
-        print(type(inputs))
-        print(inputs)
-        # print(inputs.shape)
-        import sys
-        sys.stdout.flush()
+        # print("TYPE-IS")
+        # print(type(inputs))
+        # print(inputs)
+        # # print(inputs.shape)
+        # import sys
+        # sys.stdout.flush()
 
         smoothed_rews = []
         if isinstance(inputs, list):
@@ -32,9 +32,9 @@ class ConvToFCNet(Model):
 
         # inputs = input_dict["obs"][0]
 
-        print(inputs)
-        print(inputs.shape)
-        sys.stdout.flush()
+        # print(inputs)
+        # print(inputs.shape)
+        # sys.stdout.flush()
 
         hiddens = [32, 32]
         with tf.name_scope("custom_net"):
@@ -64,9 +64,9 @@ class ConvToFCNet(Model):
                 scope="fc_out")
 
 
-            print(output)
-            print(output.shape)
-            sys.stdout.flush()
+            # print(output)
+            # print(output.shape)
+            # sys.stdout.flush()
 
 
             output = tf.concat([output, smoothed_rews], axis=-1)
@@ -74,11 +74,11 @@ class ConvToFCNet(Model):
             # print(output)
             # print(output.shape)
 
-            print("NEW OUTPUT")
-            print(output)
-            print(output.shape)
-
-            print(last_layer)
-            sys.stdout.flush()
+            # print("NEW OUTPUT")
+            # print(output)
+            # print(output.shape)
+            #
+            # print(last_layer)
+            # sys.stdout.flush()
 
             return output, last_layer
