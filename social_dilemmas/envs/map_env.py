@@ -221,11 +221,6 @@ class MapEnv(MultiAgentEnv):
             # Well this is not SVO, or is it? See the original psych SVO paper
             # Just a weighting of rewards of others vs own
             # Well alpha,beta=1 means every agent maxes sum reward of all
-            # w_a = 0.5
-            # w_b = 0.5
-
-            alpha = 0.0 # 0.0
-            beta = 0.0 #0.05
 
             total_rew_sum = sum(smoothed_rew_list)
             old_rewards = rewards.copy() # oh actually copy not even needed in formulation below
@@ -249,19 +244,24 @@ class MapEnv(MultiAgentEnv):
                 # intrins_rew = extrinsic_self_rew - reg
 
                 # Inequity aversion
-                smoothed_rew_arr = np.array(smoothed_rew_list)
-                # vengeance
-                neg_discrepancies = smoothed_rew_arr - self_rew # other reward - self rew # note agent's discrepancy with self is 0
-                neg_discrepancies = np.maximum(neg_discrepancies, 0)
-                # guilt
-                pos_discrepancies = self_rew - smoothed_rew_arr
-                pos_discrepancies = np.maximum(pos_discrepancies, 0)
-
-                intrins_rew = extrinsic_self_rew - alpha / num_others * np.sum(neg_discrepancies) \
-                              - beta / num_others * np.sum(pos_discrepancies)
+                # alpha = 0.0  # 5.0 # 0.0
+                # beta = 0.0  # 0.05
+                # smoothed_rew_arr = np.array(smoothed_rew_list)
+                # # vengeance
+                # neg_discrepancies = smoothed_rew_arr - self_rew # other reward - self rew # note agent's discrepancy with self is 0
+                # neg_discrepancies = np.maximum(neg_discrepancies, 0)
+                # # guilt
+                # pos_discrepancies = self_rew - smoothed_rew_arr
+                # pos_discrepancies = np.maximum(pos_discrepancies, 0)
+                #
+                # intrins_rew = extrinsic_self_rew - alpha / num_others * np.sum(neg_discrepancies) \
+                #               - beta / num_others * np.sum(pos_discrepancies)
 
                 # simple weighting
-                # intrins_rew = w_a * self_rew + w_b * others_rew_avg
+                w_a = 1.0
+                w_b = 0.2
+                avg_smooth_rew = total_rew_sum / len(smoothed_rew_list)
+                intrins_rew = w_a * extrinsic_self_rew + w_b * avg_smooth_rew
 
                 # update the reward dict
                 rewards[agent.agent_id] = intrins_rew
