@@ -232,16 +232,16 @@ class MapEnv(MultiAgentEnv):
                 others_rew_avg = others_rew_sum / num_others
 
                 # Social Diversity paper SVO algo
-                # eps = 1e-5
-                # if self_rew == 0:
-                #     theta_r = np.arctan(others_rew_avg / (self_rew + eps))
-                # else:
-                #     theta_r = np.arctan(others_rew_avg / self_rew)
-                # # assuming homogeneous altruistic agents for now
-                # theta_svo = np.pi / 2 # hardcoded 90 degrees for now
-                # weight_svo = 0.2 # from paper, later TODO pass as arg
-                # reg = weight_svo * (np.abs(theta_svo - theta_r))
-                # intrins_rew = extrinsic_self_rew - reg
+                eps = 1e-5
+                if self_rew == 0:
+                    theta_r = np.arctan(others_rew_avg / (self_rew + eps))
+                else:
+                    theta_r = np.arctan(others_rew_avg / self_rew)
+                # assuming homogeneous altruistic agents for now
+                theta_svo = np.pi / 2 # hardcoded 90 degrees for now
+                weight_svo = 0.2 # from paper, later TODO pass as arg
+                reg = weight_svo * (np.abs(theta_svo - theta_r))
+                intrins_rew = extrinsic_self_rew - reg
 
                 # Inequity aversion
                 # alpha = 0.0  # 5.0 # 0.0
@@ -258,10 +258,10 @@ class MapEnv(MultiAgentEnv):
                 #               - beta / num_others * np.sum(pos_discrepancies)
 
                 # simple weighting
-                w_a = 1.0
-                w_b = 0.2
-                avg_smooth_rew = total_rew_sum / len(smoothed_rew_list)
-                intrins_rew = w_a * extrinsic_self_rew + w_b * avg_smooth_rew
+                # w_a = 1.0
+                # w_b = 0.2
+                # avg_smooth_rew = total_rew_sum / len(smoothed_rew_list)
+                # intrins_rew = w_a * extrinsic_self_rew + w_b * avg_smooth_rew
 
                 # update the reward dict
                 rewards[agent.agent_id] = intrins_rew
