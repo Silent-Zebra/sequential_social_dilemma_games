@@ -224,8 +224,8 @@ class MapEnv(MultiAgentEnv):
             # w_a = 0.5
             # w_b = 0.5
 
-            alpha = 0.0 #5.0
-            beta = 0.05
+            alpha = 0.0 # 0.0
+            beta = 0.0 #0.05
 
             total_rew_sum = sum(smoothed_rew_list)
             old_rewards = rewards.copy() # oh actually copy not even needed in formulation below

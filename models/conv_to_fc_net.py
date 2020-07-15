@@ -47,7 +47,7 @@ class ConvToFCNet(Model):
                 scope="conv")
             last_layer = flatten(inputs)
 
-            last_layer = tf.concat([last_layer, smoothed_rews], axis=-1)
+            # last_layer = tf.concat([last_layer, smoothed_rews], axis=-1)
 
             i = 1
             for size in hiddens:
@@ -72,7 +72,7 @@ class ConvToFCNet(Model):
             # sys.stdout.flush()
 
 
-            # output = tf.concat([output, smoothed_rews], axis=-1)
+            output = tf.concat([output, smoothed_rews], axis=-1)
 
 
             # print(output)
