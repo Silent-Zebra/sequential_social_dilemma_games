@@ -237,28 +237,28 @@ class MapEnv(MultiAgentEnv):
                 others_rew_avg = others_rew_sum / num_others
 
                 # Social Diversity paper SVO algo
-                eps = 1e-5
-                if self_rew == 0:
-                    theta_r = np.arctan(others_rew_avg / (self_rew + eps))
-                else:
-                    theta_r = np.arctan(others_rew_avg / self_rew)
-                # assuming homogeneous altruistic agents for now
-                theta_svo = np.pi / 2 # hardcoded 90 degrees for now
-                weight_svo = 0.2 # from paper, later TODO pass as arg
-                reg = weight_svo * (np.abs(theta_svo - theta_r))
-                intrins_rew = extrinsic_self_rew - reg
+                # eps = 1e-5
+                # if self_rew == 0:
+                #     theta_r = np.arctan(others_rew_avg / (self_rew + eps))
+                # else:
+                #     theta_r = np.arctan(others_rew_avg / self_rew)
+                # # assuming homogeneous altruistic agents for now
+                # theta_svo = np.pi / 2 # hardcoded 90 degrees for now
+                # weight_svo = 0.2 # from paper, later TODO pass as arg
+                # reg = weight_svo * (np.abs(theta_svo - theta_r))
+                # intrins_rew = extrinsic_self_rew - reg
 
                 # Inequity aversion
-                # smoothed_rew_arr = np.array(smoothed_rew_list)
-                # # vengeance
-                # neg_discrepancies = smoothed_rew_arr - self_rew # other reward - self rew # note agent's discrepancy with self is 0
-                # neg_discrepancies = np.maximum(neg_discrepancies, 0)
-                # # guilt
-                # pos_discrepancies = self_rew - smoothed_rew_arr
-                # pos_discrepancies = np.maximum(pos_discrepancies, 0)
-                #
-                # intrins_rew = extrinsic_self_rew - alpha / num_others * np.sum(neg_discrepancies) \
-                #               - beta / num_others * np.sum(pos_discrepancies)
+                smoothed_rew_arr = np.array(smoothed_rew_list)
+                # vengeance
+                neg_discrepancies = smoothed_rew_arr - self_rew # other reward - self rew # note agent's discrepancy with self is 0
+                neg_discrepancies = np.maximum(neg_discrepancies, 0)
+                # guilt
+                pos_discrepancies = self_rew - smoothed_rew_arr
+                pos_discrepancies = np.maximum(pos_discrepancies, 0)
+
+                intrins_rew = extrinsic_self_rew - alpha / num_others * np.sum(neg_discrepancies) \
+                              - beta / num_others * np.sum(pos_discrepancies)
 
                 # simple weighting
                 # intrins_rew = w_a * self_rew + w_b * others_rew_avg
