@@ -46,6 +46,9 @@ class ConvToFCNet(Model):
                 activation_fn=tf.nn.relu,
                 scope="conv")
             last_layer = flatten(inputs)
+
+            last_layer = tf.concat([last_layer, smoothed_rews], axis=-1)
+
             i = 1
             for size in hiddens:
                 label = "fc{}".format(i)
@@ -69,7 +72,8 @@ class ConvToFCNet(Model):
             # sys.stdout.flush()
 
 
-            output = tf.concat([output, smoothed_rews], axis=-1)
+            # output = tf.concat([output, smoothed_rews], axis=-1)
+
 
             # print(output)
             # print(output.shape)
