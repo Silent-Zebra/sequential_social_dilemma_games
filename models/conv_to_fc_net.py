@@ -72,7 +72,7 @@ class ConvToFCNet(Model):
             # sys.stdout.flush()
 
 
-            output = tf.concat([output, smoothed_rews], axis=-1)
+            # output = tf.concat([output, smoothed_rews], axis=-1)
 
 
             # print(output)
