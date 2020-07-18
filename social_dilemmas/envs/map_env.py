@@ -244,8 +244,8 @@ class MapEnv(MultiAgentEnv):
                 # intrins_rew = extrinsic_self_rew - reg
 
                 # Inequity aversion
-                alpha = 5.0  # 5.0 # 0.0
-                beta = 0.0  # 0.05
+                alpha = 0.0 # 5.0 # 0.0 # disadvantageous aversion
+                beta = 0.05  # 0.05 # advantageous aversion
                 smoothed_rew_arr = np.array(smoothed_rew_list)
                 # vengeance
                 neg_discrepancies = smoothed_rew_arr - self_rew # other reward - self rew # note agent's discrepancy with self is 0
