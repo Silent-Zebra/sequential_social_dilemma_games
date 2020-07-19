@@ -132,31 +132,31 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
     if env == 'harvest':
         def env_creator(_):
             return HarvestEnv(num_agents=num_agents)
-        single_env = HarvestEnv()
+        # single_env = HarvestEnv()
     else:
         def env_creator(_):
             return CleanupEnv(num_agents=num_agents)
-        single_env = CleanupEnv()
+        # single_env = CleanupEnv()
 
     env_name = env + "_env"
     register_env(env_name, env_creator)
 
-    obs_space = single_env.observation_space
-    act_space = single_env.action_space
-
-    # Each policy can have a different configuration (including custom model)
-    def gen_policy():
-        # return (PPOPolicyGraph, obs_space, act_space, {})
-        # return (A3CPolicyGraph, obs_space, act_space, {})
-        return (None, obs_space, act_space, {}) # should be default now
-
-    # Setup PPO with an ensemble of `num_policies` different policy graphs
-    policy_graphs = {}
-    for i in range(num_agents):
-        policy_graphs['agent-' + str(i)] = gen_policy()
-
-    def policy_mapping_fn(agent_id):
-        return agent_id
+    # obs_space = single_env.observation_space
+    # act_space = single_env.action_space
+    #
+    # # Each policy can have a different configuration (including custom model)
+    # def gen_policy():
+    #     # return (PPOPolicyGraph, obs_space, act_space, {})
+    #     # return (A3CPolicyGraph, obs_space, act_space, {})
+    #     return (None, obs_space, act_space, {}) # should be default now
+    #
+    # # Setup PPO with an ensemble of `num_policies` different policy graphs
+    # policy_graphs = {}
+    # for i in range(num_agents):
+    #     policy_graphs['agent-' + str(i)] = gen_policy()
+    #
+    # def policy_mapping_fn(agent_id):
+    #     return agent_id
 
     # register the custom model
     model_name = "conv_to_fc_net"
