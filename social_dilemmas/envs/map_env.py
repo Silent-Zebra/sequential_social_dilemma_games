@@ -304,7 +304,10 @@ class MapEnv(MultiAgentEnv):
             #                               agent.row_size, agent.col_size)
             rgb_arr = self.map_to_colors(agent.get_state(), self.color_map)
             # observations[agent.agent_id] = rgb_arr
-            observations[agent.agent_id] = (rgb_arr, np.zeros(n_agents))
+            if self.intrinsic_rew_type is not None:
+                observations[agent.agent_id] = (rgb_arr, np.zeros(n_agents))
+            else:
+                observations[agent.agent_id] = rgb_arr
             agent.extrinsic_reward_sum = 0
             agent.smoothed_extrinsic_reward = 0
 
