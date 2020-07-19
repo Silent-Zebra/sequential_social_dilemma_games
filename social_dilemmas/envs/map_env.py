@@ -205,9 +205,10 @@ class MapEnv(MultiAgentEnv):
                 agent.smoothed_extrinsic_reward = lambdgamma * agent.smoothed_extrinsic_reward + rew
                 smoothed_rew_list.append(agent.smoothed_extrinsic_reward)
 
-        for agent in self.agents.values():
-            agent.smoothed_rew_arr = np.array(smoothed_rew_list)
-            observations[agent.agent_id] = (observations[agent.agent_id], agent.smoothed_rew_arr)
+        if self.intrinsic_rew_type is not None:
+            for agent in self.agents.values():
+                agent.smoothed_rew_arr = np.array(smoothed_rew_list)
+                observations[agent.agent_id] = (observations[agent.agent_id], agent.smoothed_rew_arr)
 
         # print("SMOOTHED OBS")
         # print(observations)
