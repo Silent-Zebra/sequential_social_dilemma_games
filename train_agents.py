@@ -127,15 +127,15 @@ def on_episode_end(info):
 
 def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
           num_agents, use_gpus_for_workers=False, use_gpu_for_driver=False,
-          num_workers_per_device=1):
+          num_workers_per_device=1, intrinsic_rew_type=None):
 
     if env == 'harvest':
         def env_creator(_):
-            return HarvestEnv(num_agents=num_agents)
+            return HarvestEnv(num_agents=num_agents, intrinsic_rew_type=intrinsic_rew_type)
         # single_env = HarvestEnv()
     else:
         def env_creator(_):
-            return CleanupEnv(num_agents=num_agents)
+            return CleanupEnv(num_agents=num_agents, intrinsic_rew_type=intrinsic_rew_type)
         # single_env = CleanupEnv()
 
     env_name = env + "_env"
@@ -229,7 +229,8 @@ def main(args):
                                       args.num_gpus, args.num_agents,
                                       args.use_gpus_for_workers,
                                       args.use_gpu_for_driver,
-                                      args.num_workers_per_device)
+                                      args.num_workers_per_device,
+                                      args.intrinsic_rew_type)
 
     if args.exp_name is None:
         exp_name = args.env + '_' + args.algorithm
@@ -268,6 +269,8 @@ if __name__ == "__main__":
     parser.add_argument("--use_gpus_for_workers", action="store_true", help="Set to true to run workers on GPUs rather than CPUs")
     parser.add_argument("--use_gpu_for_driver", action="store_true", help="Set to true to run driver on GPU rather than CPU.")
     parser.add_argument("--num_workers_per_device", type=int, default="2", help="Number of workers to place on a single device (CPU or GPU)")
+    parser.add_argument("--intrinsic_rew_type", type=str, choices=['svo', 'ineq', 'altruism'], default=None,  help="Run agents with intrinsic reward modifications")
+
 
     args = parser.parse_args()
 
