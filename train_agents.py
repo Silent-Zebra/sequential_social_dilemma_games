@@ -239,6 +239,9 @@ def main(args):
     print('Commencing experiment', exp_name)
 
     print(config)
+
+    print("INTRINS REW TYPE")
+    print(args.intrinsic_rew_type)
     import sys
     sys.stdout.flush()
 
