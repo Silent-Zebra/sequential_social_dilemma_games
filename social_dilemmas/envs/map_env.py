@@ -59,7 +59,7 @@ DEFAULT_COLOURS = {' ': [0, 0, 0],  # Black background
 
 class MapEnv(MultiAgentEnv):
 
-    def __init__(self, ascii_map, num_agents=1, render=True, color_map=None):
+    def __init__(self, ascii_map, num_agents=1, render=True, color_map=None, ir_param_list=None):
         """
 
         Parameters
@@ -79,6 +79,8 @@ class MapEnv(MultiAgentEnv):
         # map without agents or beams
         self.world_map = np.full((len(self.base_map), len(self.base_map[0])), ' ')
         self.beam_pos = []
+
+        self.ir_param_list = ir_param_list
 
 
         self.agents = {}

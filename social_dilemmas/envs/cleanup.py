@@ -26,8 +26,8 @@ appleRespawnProbability = 0.05
 class CleanupEnv(MapEnv):
 
     def __init__(self, ascii_map=CLEANUP_MAP, num_agents=1, render=False, ir_param_list=None):
-        super().__init__(ascii_map, num_agents, render)
-        self.ir_param_list = ir_param_list
+        super().__init__(ascii_map, num_agents, render, ir_param_list=ir_param_list)
+        # self.ir_param_list = ir_param_list
 
         # compute potential waste area
         unique, counts = np.unique(self.base_map, return_counts=True)
