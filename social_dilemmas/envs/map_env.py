@@ -225,51 +225,52 @@ class MapEnv(MultiAgentEnv):
         total_rew_sum = sum(smoothed_rew_list)
         old_rewards = rewards.copy() # oh actually copy not even needed in formulation below
         for agent in self.agents.values():
-            extrinsic_self_rew = old_rewards[agent.agent_id]
-            self_rew = agent.smoothed_extrinsic_reward
-            others_rew_sum = total_rew_sum - self_rew
-            num_others = len(smoothed_rew_list) - 1
-            others_rew_avg = others_rew_sum / num_others
+            if agent.intrinsic_rew_type is not None:
+                extrinsic_self_rew = old_rewards[agent.agent_id]
+                self_rew = agent.smoothed_extrinsic_reward
+                others_rew_sum = total_rew_sum - self_rew
+                num_others = len(smoothed_rew_list) - 1
+                others_rew_avg = others_rew_sum / num_others
 
-            # Social Diversity paper SVO algo
-            if agent.intrinsic_rew_type == "svo":
-                eps = 1e-5
-                if self_rew == 0:
-                    theta_r = np.arctan(others_rew_avg / (self_rew + eps))
-                else:
-                    theta_r = np.arctan(others_rew_avg / self_rew)
-                # assuming homogeneous altruistic agents for now
-                theta_svo_degrees = agent.svo_angle
-                theta_svo = math.radians(theta_svo_degrees)
-                # theta_svo = np.pi / 2 # hardcoded 90 degrees for now
-                weight_svo = agent.svo_weight # 0.2 from paper
-                reg = weight_svo * (np.abs(theta_svo - theta_r))
-                intrins_rew = extrinsic_self_rew - reg
+                # Social Diversity paper SVO algo
+                if agent.intrinsic_rew_type == "svo":
+                    eps = 1e-5
+                    if self_rew == 0:
+                        theta_r = np.arctan(others_rew_avg / (self_rew + eps))
+                    else:
+                        theta_r = np.arctan(others_rew_avg / self_rew)
+                    # assuming homogeneous altruistic agents for now
+                    theta_svo_degrees = agent.svo_angle
+                    theta_svo = math.radians(theta_svo_degrees)
+                    # theta_svo = np.pi / 2 # hardcoded 90 degrees for now
+                    weight_svo = agent.svo_weight # 0.2 from paper
+                    reg = weight_svo * (np.abs(theta_svo - theta_r))
+                    intrins_rew = extrinsic_self_rew - reg
 
-            # Inequity aversion
-            elif agent.intrinsic_rew_type == "ineq":
-                alpha = agent.ineq_alpha # 5.0 # 0.0 # disadvantageous aversion
-                beta = agent.ineq_beta  # 0.05 # advantageous aversion
-                smoothed_rew_arr = np.array(smoothed_rew_list)
-                # vengeance
-                neg_discrepancies = smoothed_rew_arr - self_rew # other reward - self rew # note agent's discrepancy with self is 0
-                neg_discrepancies = np.maximum(neg_discrepancies, 0)
-                # guilt
-                pos_discrepancies = self_rew - smoothed_rew_arr
-                pos_discrepancies = np.maximum(pos_discrepancies, 0)
+                # Inequity aversion
+                elif agent.intrinsic_rew_type == "ineq":
+                    alpha = agent.ineq_alpha # 5.0 # 0.0 # disadvantageous aversion
+                    beta = agent.ineq_beta  # 0.05 # advantageous aversion
+                    smoothed_rew_arr = np.array(smoothed_rew_list)
+                    # vengeance
+                    neg_discrepancies = smoothed_rew_arr - self_rew # other reward - self rew # note agent's discrepancy with self is 0
+                    neg_discrepancies = np.maximum(neg_discrepancies, 0)
+                    # guilt
+                    pos_discrepancies = self_rew - smoothed_rew_arr
+                    pos_discrepancies = np.maximum(pos_discrepancies, 0)
 
-                intrins_rew = extrinsic_self_rew - alpha / num_others * np.sum(neg_discrepancies) \
-                              - beta / num_others * np.sum(pos_discrepancies)
+                    intrins_rew = extrinsic_self_rew - alpha / num_others * np.sum(neg_discrepancies) \
+                                  - beta / num_others * np.sum(pos_discrepancies)
 
-            # simple weighting
-            elif agent.intrinsic_rew_type == "altruism":
-                w_self = agent.w_self # 1.0
-                w_others = agent.w_others # 0.2
-                avg_smooth_rew = total_rew_sum / len(smoothed_rew_list)
-                intrins_rew = w_self * extrinsic_self_rew + w_others * avg_smooth_rew
+                # simple weighting
+                elif agent.intrinsic_rew_type == "altruism":
+                    w_self = agent.w_self # 1.0
+                    w_others = agent.w_others # 0.2
+                    avg_smooth_rew = total_rew_sum / len(smoothed_rew_list)
+                    intrins_rew = w_self * extrinsic_self_rew + w_others * avg_smooth_rew
 
-            # update the reward dict
-            rewards[agent.agent_id] = intrins_rew
+                # update the reward dict
+                rewards[agent.agent_id] = intrins_rew
 
         dones["__all__"] = np.any(list(dones.values()))
         return observations, rewards, dones, info
