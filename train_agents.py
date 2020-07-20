@@ -9,6 +9,8 @@ from ray.tune.registry import register_env
 # import tensorflow as tf
 import collections
 
+import ast
+
 import argparse
 
 from social_dilemmas.envs.harvest import HarvestEnv
@@ -123,19 +125,25 @@ def on_episode_end(info):
     sys.stdout.flush()
 
 
-
-
 def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
           num_agents, use_gpus_for_workers=False, use_gpu_for_driver=False,
-          num_workers_per_device=1, intrinsic_rew_type=None):
+          num_workers_per_device=1, intrinsic_rew_type=None, intrinsic_rew_params=None):
+
+    if intrinsic_rew_params is None:
+        ir_param_list = [None] * num_agents
+
+    else:
+        ir_param_list = intrinsic_rew_params.split(';')
+        ir_param_list = list(map(ast.literal_eval, ir_param_list))
+        assert len(ir_param_list) == num_agents
 
     if env == 'harvest':
         def env_creator(_):
-            return HarvestEnv(num_agents=num_agents, intrinsic_rew_type=intrinsic_rew_type)
+            return HarvestEnv(num_agents=num_agents, ir_param_list=ir_param_list)
         # single_env = HarvestEnv()
     else:
         def env_creator(_):
-            return CleanupEnv(num_agents=num_agents, intrinsic_rew_type=intrinsic_rew_type)
+            return CleanupEnv(num_agents=num_agents, ir_param_list=ir_param_list)
         # single_env = CleanupEnv()
 
     env_name = env + "_env"
@@ -230,7 +238,8 @@ def main(args):
                                       args.use_gpus_for_workers,
                                       args.use_gpu_for_driver,
                                       args.num_workers_per_device,
-                                      args.intrinsic_rew_type)
+                                      args.intrinsic_rew_type,
+                                      args.intrinsic_rew_params)
 
     if args.exp_name is None:
         exp_name = args.env + '_' + args.algorithm
@@ -240,8 +249,8 @@ def main(args):
 
     print(config)
 
-    print("INTRINS REW TYPE")
-    print(args.intrinsic_rew_type)
+    print("INTRINS REW PARAMS")
+    print(args.intrinsic_rew_params)
     import sys
     sys.stdout.flush()
 
@@ -272,8 +281,11 @@ if __name__ == "__main__":
     parser.add_argument("--use_gpus_for_workers", action="store_true", help="Set to true to run workers on GPUs rather than CPUs")
     parser.add_argument("--use_gpu_for_driver", action="store_true", help="Set to true to run driver on GPU rather than CPU.")
     parser.add_argument("--num_workers_per_device", type=int, default="2", help="Number of workers to place on a single device (CPU or GPU)")
-    parser.add_argument("--intrinsic_rew_type", type=str, choices=['svo', 'ineq', 'altruism'], default=None,  help="Run agents with intrinsic reward modifications")
-
+    # parser.add_argument("--intrinsic_rew_type", type=str, choices=['svo', 'ineq', 'altruism'], default=None,  help="Run agents with intrinsic reward modifications")
+    parser.add_argument("--intrinsic_rew_params", type=str, default=None, help="Parameters for agents' intrinsic reward. Format: (rew_type, params) for each agent, semicolon delimited")
+    # Example intrinsic reward params "('ineq',5.0,0.05);('altruism',1.0,0.2);('svo',90,0.2);(None);(None)"
+    # Ineq aversion is alpha, beta
+    # Altruism is w_self, w_others
 
     args = parser.parse_args()
 

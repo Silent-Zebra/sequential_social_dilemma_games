@@ -17,7 +17,9 @@ BASE_ACTIONS = {0: 'MOVE_LEFT',  # Move left
 
 class Agent(object):
 
-    def __init__(self, agent_id, start_pos, start_orientation, grid, row_size, col_size, intrinsic_rew_type=None):
+    def __init__(self, agent_id, start_pos, start_orientation, grid, row_size, col_size,
+                 intrinsic_rew_type=None, ineq_alpha=None, ineq_beta=None, w_self=None, w_others=None,
+                 svo_angle=None, svo_weight=None):
         """Superclass for all agents.
 
         Parameters
@@ -35,6 +37,13 @@ class Agent(object):
         col_size: (int)
             how many columns left and right the agent can look
         """
+        self.ineq_alpha = ineq_alpha
+        self.ineq_beta = ineq_beta
+        self.w_self = w_self
+        self.w_others = w_others
+        self.svo_angle = svo_angle
+        self.svo_weight = svo_weight
+
         self.agent_id = agent_id
         self.pos = np.array(start_pos)
         self.orientation = start_orientation
@@ -156,10 +165,17 @@ HARVEST_VIEW_SIZE = 7
 
 class HarvestAgent(Agent):
 
-    def __init__(self, agent_id, start_pos, start_orientation, grid, num_agents, view_len=HARVEST_VIEW_SIZE, intrinsic_rew_type=None):
+    def __init__(self, agent_id, start_pos, start_orientation, grid, num_agents,
+                 view_len=HARVEST_VIEW_SIZE, intrinsic_rew_type=None,
+                 ineq_alpha=None, ineq_beta=None, w_self=None, w_others=None,
+                 svo_angle=None, svo_weight=None):
+
+
         self.view_len = view_len
         self.num_agents = num_agents
-        super().__init__(agent_id, start_pos, start_orientation, grid, view_len, view_len, intrinsic_rew_type=intrinsic_rew_type)
+        super().__init__(agent_id, start_pos, start_orientation, grid, view_len, view_len,
+                         intrinsic_rew_type, ineq_alpha, ineq_beta, w_self, w_others,
+                         svo_angle, svo_weight)
         self.update_agent_pos(start_pos)
         self.update_agent_rot(start_orientation)
 
@@ -214,10 +230,15 @@ CLEANUP_VIEW_SIZE = 7
 
 
 class CleanupAgent(Agent):
-    def __init__(self, agent_id, start_pos, start_orientation, grid, num_agents, view_len=CLEANUP_VIEW_SIZE, intrinsic_rew_type=None):
+    def __init__(self, agent_id, start_pos, start_orientation, grid, num_agents,
+                 view_len=CLEANUP_VIEW_SIZE, intrinsic_rew_type=None,
+                 ineq_alpha=None, ineq_beta=None, w_self=None, w_others=None,
+                 svo_angle=None, svo_weight=None):
         self.view_len = view_len
         self.num_agents = num_agents
-        super().__init__(agent_id, start_pos, start_orientation, grid, view_len, view_len, intrinsic_rew_type=intrinsic_rew_type)
+        super().__init__(agent_id, start_pos, start_orientation, grid, view_len,
+                         view_len, intrinsic_rew_type, ineq_alpha, ineq_beta, w_self, w_others,
+                         svo_angle, svo_weight)
         # remember what you've stepped on
         self.update_agent_pos(start_pos)
         self.update_agent_rot(start_orientation)

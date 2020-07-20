@@ -6,6 +6,7 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 from ray.rllib.env import MultiAgentEnv
+import math
 
 ACTIONS = {'MOVE_LEFT': [-1, 0],  # Move left
            'MOVE_RIGHT': [1, 0],  # Move right
@@ -219,8 +220,6 @@ class MapEnv(MultiAgentEnv):
 
         # if self.intrinsic_rew_type is not None:
 
-
-
         total_rew_sum = sum(smoothed_rew_list)
         old_rewards = rewards.copy() # oh actually copy not even needed in formulation below
         for agent in self.agents.values():
@@ -238,15 +237,17 @@ class MapEnv(MultiAgentEnv):
                 else:
                     theta_r = np.arctan(others_rew_avg / self_rew)
                 # assuming homogeneous altruistic agents for now
-                theta_svo = np.pi / 2 # hardcoded 90 degrees for now
-                weight_svo = 0.2 # from paper, later TODO pass as arg
+                theta_svo_degrees = agent.svo_angle
+                theta_svo = math.radians(theta_svo_degrees)
+                # theta_svo = np.pi / 2 # hardcoded 90 degrees for now
+                weight_svo = agent.svo_weight # 0.2 from paper
                 reg = weight_svo * (np.abs(theta_svo - theta_r))
                 intrins_rew = extrinsic_self_rew - reg
 
             # Inequity aversion
             elif agent.intrinsic_rew_type == "ineq":
-                alpha = 0.0 # 5.0 # 0.0 # disadvantageous aversion
-                beta = 0.05  # 0.05 # advantageous aversion
+                alpha = agent.ineq_alpha # 5.0 # 0.0 # disadvantageous aversion
+                beta = agent.ineq_beta  # 0.05 # advantageous aversion
                 smoothed_rew_arr = np.array(smoothed_rew_list)
                 # vengeance
                 neg_discrepancies = smoothed_rew_arr - self_rew # other reward - self rew # note agent's discrepancy with self is 0
@@ -260,10 +261,10 @@ class MapEnv(MultiAgentEnv):
 
             # simple weighting
             elif agent.intrinsic_rew_type == "altruism":
-                w_a = 1.0
-                w_b = 0.2
+                w_self = agent.w_self # 1.0
+                w_others = agent.w_others # 0.2
                 avg_smooth_rew = total_rew_sum / len(smoothed_rew_list)
-                intrins_rew = w_a * extrinsic_self_rew + w_b * avg_smooth_rew
+                intrins_rew = w_self * extrinsic_self_rew + w_others * avg_smooth_rew
 
             # update the reward dict
             rewards[agent.agent_id] = intrins_rew

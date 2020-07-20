@@ -14,8 +14,9 @@ SPAWN_PROB = [0, 0.005, 0.02, 0.05]
 
 class HarvestEnv(MapEnv):
 
-    def __init__(self, ascii_map=HARVEST_MAP, num_agents=1, render=False):
+    def __init__(self, ascii_map=HARVEST_MAP, num_agents=1, render=False, ir_param_list=None):
         super().__init__(ascii_map, num_agents, render)
+        self.ir_param_list = ir_param_list
         self.apple_points = []
         for row in range(self.base_map.shape[0]):
             for col in range(self.base_map.shape[1]):
@@ -40,7 +41,27 @@ class HarvestEnv(MapEnv):
             spawn_point = self.spawn_point()
             rotation = self.spawn_rotation()
             grid = map_with_agents
-            agent = HarvestAgent(agent_id, spawn_point, rotation, grid, self.num_agents)
+            agent_params = self.ir_param_list[i]
+            if agent_params[0] is None:
+                agent = HarvestAgent(agent_id, spawn_point, rotation, grid, self.num_agents)
+            elif agent_params[0].lower() == "ineq":
+                agent = HarvestAgent(agent_id, spawn_point, rotation, grid,
+                                     self.num_agents,
+                                     intrinsic_rew_type="ineq",
+                                     ineq_alpha=agent_params[1],
+                                     ineq_beta=agent_params[2])
+            elif agent_params[0].lower() == "altruism":
+                agent = HarvestAgent(agent_id, spawn_point, rotation, grid,
+                                     self.num_agents,
+                                     intrinsic_rew_type="altruism",
+                                     w_self=agent_params[1],
+                                     w_others=agent_params[2])
+            elif agent_params[0].lower() == "svo":
+                agent = HarvestAgent(agent_id, spawn_point, rotation, grid,
+                                     self.num_agents,
+                                     intrinsic_rew_type="svo",
+                                     svo_angle=agent_params[1],
+                                     svo_weight=agent_params[2])
             # agent = HarvestAgent(agent_id, spawn_point, rotation, grid)
 
             # grid = util.return_view(map_with_agents, spawn_point,
