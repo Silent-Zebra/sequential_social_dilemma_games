@@ -17,7 +17,7 @@ BASE_ACTIONS = {0: 'MOVE_LEFT',  # Move left
 
 class Agent(object):
 
-    def __init__(self, agent_id, start_pos, start_orientation, grid, row_size, col_size):
+    def __init__(self, agent_id, start_pos, start_orientation, grid, row_size, col_size, intrinsic_rew_type=None):
         """Superclass for all agents.
 
         Parameters
@@ -38,6 +38,7 @@ class Agent(object):
         self.agent_id = agent_id
         self.pos = np.array(start_pos)
         self.orientation = start_orientation
+        self.intrinsic_rew_type = intrinsic_rew_type
         # TODO(ev) change grid to env, this name is not very informative
         self.grid = grid
         self.row_size = row_size
@@ -155,10 +156,10 @@ HARVEST_VIEW_SIZE = 7
 
 class HarvestAgent(Agent):
 
-    def __init__(self, agent_id, start_pos, start_orientation, grid, num_agents, view_len=HARVEST_VIEW_SIZE):
+    def __init__(self, agent_id, start_pos, start_orientation, grid, num_agents, view_len=HARVEST_VIEW_SIZE, intrinsic_rew_type=None):
         self.view_len = view_len
         self.num_agents = num_agents
-        super().__init__(agent_id, start_pos, start_orientation, grid, view_len, view_len)
+        super().__init__(agent_id, start_pos, start_orientation, grid, view_len, view_len, intrinsic_rew_type=intrinsic_rew_type)
         self.update_agent_pos(start_pos)
         self.update_agent_rot(start_orientation)
 
@@ -176,8 +177,11 @@ class HarvestAgent(Agent):
     def observation_space(self):
         map_obs = Box(low=0.0, high=0.0, shape=(2 * self.view_len + 1,
                                              2 * self.view_len + 1, 3), dtype=np.float32)
-        rew_obs = Box(low=0.0, high=0.0, shape=(self.num_agents,), dtype=np.float32)
-        return Tuple([map_obs, rew_obs])
+        if self.intrinsic_rew_type is None:
+            return map_obs
+        else:
+            rew_obs = Box(low=0.0, high=0.0, shape=(self.num_agents,), dtype=np.float32)
+            return Tuple([map_obs, rew_obs])
     # def observation_space(self):
     #     return Box(low=0.0, high=0.0, shape=(2 * self.view_len + 1,
     #                                          2 * self.view_len + 1, 3), dtype=np.float32)
@@ -210,10 +214,10 @@ CLEANUP_VIEW_SIZE = 7
 
 
 class CleanupAgent(Agent):
-    def __init__(self, agent_id, start_pos, start_orientation, grid, num_agents, view_len=CLEANUP_VIEW_SIZE):
+    def __init__(self, agent_id, start_pos, start_orientation, grid, num_agents, view_len=CLEANUP_VIEW_SIZE, intrinsic_rew_type=None):
         self.view_len = view_len
         self.num_agents = num_agents
-        super().__init__(agent_id, start_pos, start_orientation, grid, view_len, view_len)
+        super().__init__(agent_id, start_pos, start_orientation, grid, view_len, view_len, intrinsic_rew_type=intrinsic_rew_type)
         # remember what you've stepped on
         self.update_agent_pos(start_pos)
         self.update_agent_rot(start_orientation)
@@ -225,9 +229,14 @@ class CleanupAgent(Agent):
     @property
     def observation_space(self):
         map_obs = Box(low=0.0, high=0.0, shape=(2 * self.view_len + 1,
-                                             2 * self.view_len + 1, 3), dtype=np.float32)
-        rew_obs = Box(low=0.0, high=0.0, shape=(self.num_agents,), dtype=np.float32)
-        return Tuple([map_obs, rew_obs])
+                                                2 * self.view_len + 1, 3),
+                      dtype=np.float32)
+        if self.intrinsic_rew_type is None:
+            return map_obs
+        else:
+            rew_obs = Box(low=0.0, high=0.0, shape=(self.num_agents,),
+                          dtype=np.float32)
+            return Tuple([map_obs, rew_obs])
         # return Box(low=0.0, high=0.0, shape=(2 * self.view_len + 1,
         #                                      2 * self.view_len + 1, 3), dtype=np.float32)
 
