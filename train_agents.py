@@ -14,6 +14,7 @@ import ast
 import argparse
 
 from social_dilemmas.envs.harvest import HarvestEnv
+from social_dilemmas.constants import HARVEST_MAP, HARVEST_MAP_BIG, HARVEST_MAP_TINY
 from social_dilemmas.envs.cleanup import CleanupEnv
 from models.conv_to_fc_net import ConvToFCNet
 
@@ -127,7 +128,7 @@ def on_episode_end(info):
 
 def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
           num_agents, use_gpus_for_workers=False, use_gpu_for_driver=False,
-          num_workers_per_device=1, intrinsic_rew_params=None):
+          num_workers_per_device=1, intrinsic_rew_params=None, harvest_map='regular'):
 
     if intrinsic_rew_params is None:
         ir_param_list = [None] * num_agents
@@ -139,7 +140,12 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
 
     if env == 'harvest':
         def env_creator(_):
-            return HarvestEnv(num_agents=num_agents, ir_param_list=ir_param_list)
+            ascii_map = HARVEST_MAP
+            if harvest_map == 'tiny':
+                ascii_map = HARVEST_MAP_TINY
+            elif harvest_map == 'big':
+                ascii_map = HARVEST_MAP_BIG
+            return HarvestEnv(ascii_map=ascii_map, num_agents=num_agents, ir_param_list=ir_param_list)
         # single_env = HarvestEnv()
     else:
         def env_creator(_):
@@ -238,7 +244,8 @@ def main(args):
                                       args.use_gpus_for_workers,
                                       args.use_gpu_for_driver,
                                       args.num_workers_per_device,
-                                      args.intrinsic_rew_params)
+                                      args.intrinsic_rew_params,
+                                      args.harvest_map)
 
     if args.exp_name is None:
         exp_name = args.env + '_' + args.algorithm
@@ -285,6 +292,7 @@ if __name__ == "__main__":
     # Example intrinsic reward params --intrinsic_rew_params "('ineq',5.0,0.05);('altruism',1.0,0.2);('svo',90,0.2);None;None"
     # Ineq aversion is alpha, beta
     # Altruism is w_self, w_others
+    parser.add_argument("--harvest_map", type=str, default='regular', choices=['regular', 'tiny', 'big'])
 
     args = parser.parse_args()
 
