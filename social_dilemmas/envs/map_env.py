@@ -210,9 +210,10 @@ class MapEnv(MultiAgentEnv):
 
         # if self.intrinsic_rew_type is not None:
         for agent in self.agents.values():
-            if agent.intrinsic_rew_type is not None:
-                agent.smoothed_rew_arr = np.array(smoothed_rew_list)
-                observations[agent.agent_id] = (observations[agent.agent_id], agent.smoothed_rew_arr)
+            agent.smoothed_rew_arr = np.array(smoothed_rew_list)
+            # if agent.intrinsic_rew_type is not None:
+            # All agents observe same thing, even if no effect on reward
+            observations[agent.agent_id] = (observations[agent.agent_id], agent.smoothed_rew_arr)
 
         # print("SMOOTHED OBS")
         # print(observations)
@@ -304,10 +305,10 @@ class MapEnv(MultiAgentEnv):
             #                               agent.row_size, agent.col_size)
             rgb_arr = self.map_to_colors(agent.get_state(), self.color_map)
             # observations[agent.agent_id] = rgb_arr
-            if agent.intrinsic_rew_type is not None:
-                observations[agent.agent_id] = (rgb_arr, np.zeros(n_agents))
-            else:
-                observations[agent.agent_id] = rgb_arr
+            # if agent.intrinsic_rew_type is not None:
+            observations[agent.agent_id] = (rgb_arr, np.zeros(n_agents))
+            # else:
+            #     observations[agent.agent_id] = rgb_arr
             agent.extrinsic_reward_sum = 0
             agent.smoothed_extrinsic_reward = 0
 
