@@ -127,7 +127,7 @@ def on_episode_end(info):
 
 def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
           num_agents, use_gpus_for_workers=False, use_gpu_for_driver=False,
-          num_workers_per_device=1, intrinsic_rew_type=None, intrinsic_rew_params=None):
+          num_workers_per_device=1, intrinsic_rew_params=None):
 
     if intrinsic_rew_params is None:
         ir_param_list = [None] * num_agents
@@ -238,7 +238,6 @@ def main(args):
                                       args.use_gpus_for_workers,
                                       args.use_gpu_for_driver,
                                       args.num_workers_per_device,
-                                      args.intrinsic_rew_type,
                                       args.intrinsic_rew_params)
 
     if args.exp_name is None:
@@ -283,7 +282,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_workers_per_device", type=int, default="2", help="Number of workers to place on a single device (CPU or GPU)")
     # parser.add_argument("--intrinsic_rew_type", type=str, choices=['svo', 'ineq', 'altruism'], default=None,  help="Run agents with intrinsic reward modifications")
     parser.add_argument("--intrinsic_rew_params", type=str, default=None, help="Parameters for agents' intrinsic reward. Format: (rew_type, params) for each agent, semicolon delimited")
-    # Example intrinsic reward params "('ineq',5.0,0.05);('altruism',1.0,0.2);('svo',90,0.2);(None);(None)"
+    # Example intrinsic reward params --intrinsic_rew_params "('ineq',5.0,0.05);('altruism',1.0,0.2);('svo',90,0.2);(None);(None)"
     # Ineq aversion is alpha, beta
     # Altruism is w_self, w_others
 
