@@ -120,7 +120,7 @@ class CleanupEnv(MapEnv):
             # agent = CleanupAgent(agent_id, spawn_point, rotation, map_with_agents)
             # agent = CleanupAgent(agent_id, spawn_point, rotation, map_with_agents, self.num_agents)
             agent_params = self.ir_param_list[i]
-            if agent_params[0] is None:
+            if agent_params is None:
                 agent = CleanupAgent(agent_id, spawn_point, rotation, map_with_agents,
                                      self.num_agents)
             elif agent_params[0].lower() == "ineq":

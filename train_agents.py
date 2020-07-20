@@ -282,7 +282,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_workers_per_device", type=int, default="2", help="Number of workers to place on a single device (CPU or GPU)")
     # parser.add_argument("--intrinsic_rew_type", type=str, choices=['svo', 'ineq', 'altruism'], default=None,  help="Run agents with intrinsic reward modifications")
     parser.add_argument("--intrinsic_rew_params", type=str, default=None, help="Parameters for agents' intrinsic reward. Format: (rew_type, params) for each agent, semicolon delimited")
-    # Example intrinsic reward params --intrinsic_rew_params "('ineq',5.0,0.05);('altruism',1.0,0.2);('svo',90,0.2);(None);(None)"
+    # Example intrinsic reward params --intrinsic_rew_params "('ineq',5.0,0.05);('altruism',1.0,0.2);('svo',90,0.2);None;None"
     # Ineq aversion is alpha, beta
     # Altruism is w_self, w_others
 
