@@ -113,6 +113,14 @@ def on_episode_end(info):
 
     print_episode_stats(n_agents, extrinsic_rewards)
 
+    print("Times Fired")
+    for agent in info["env"].envs[0].agents.values():
+        print(agent.fires)
+        
+    print("Times Hit")
+    for agent in info["env"].envs[0].agents.values():
+        print(agent.times_hit)
+
 
     # Use custom metrics if still not working
     # or consider

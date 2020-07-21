@@ -44,6 +44,9 @@ class Agent(object):
         self.svo_angle = svo_angle
         self.svo_weight = svo_weight
 
+        self.times_hit = 0
+        self.fires = 0
+
         self.agent_id = agent_id
         self.pos = np.array(start_pos)
         self.orientation = start_orientation
@@ -205,10 +208,12 @@ class HarvestAgent(Agent):
     def hit(self, char):
         if char == 'F':
             self.reward_this_turn -= 50
+            self.times_hit += 1
 
     def fire_beam(self, char):
         if char == 'F':
             self.reward_this_turn -= 1
+            self.fires += 1
 
     def get_done(self):
         return False
@@ -270,6 +275,7 @@ class CleanupAgent(Agent):
     def fire_beam(self, char):
         if char == 'F':
             self.reward_this_turn -= 1
+            self.fires += 1
 
     def get_done(self):
         return False
@@ -277,6 +283,7 @@ class CleanupAgent(Agent):
     def hit(self, char):
         if char == 'F':
             self.reward_this_turn -= 50
+            self.times_hit += 1
 
     def consume(self, char):
         """Defines how an agent interacts with the char it is standing on"""
