@@ -278,7 +278,6 @@ class CleanupAgent(Agent):
             self.reward_this_turn -= 1
             self.fires += 1
         if char == 'C':
-            self.reward_this_turn -= 1
             self.cleans += 1
 
     def get_done(self):
