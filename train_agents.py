@@ -116,7 +116,7 @@ def on_episode_end(info):
     print("Times Fired")
     for agent in info["env"].envs[0].agents.values():
         print(agent.fires)
-        
+
     print("Times Hit")
     for agent in info["env"].envs[0].agents.values():
         print(agent.times_hit)
