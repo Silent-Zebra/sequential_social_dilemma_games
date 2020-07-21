@@ -283,7 +283,7 @@ def main(args):
             'checkpoint_freq': args.checkpoint_frequency,
             "config": config,
         }
-    })
+    }, resume=args.resume)
 
 
 if __name__ == "__main__":
@@ -307,6 +307,8 @@ if __name__ == "__main__":
     # Altruism is w_self, w_others
     parser.add_argument("--harvest_map", type=str, default='regular', choices=['regular', 'tiny', 'big'])
     parser.add_argument("--cleanup_map", type=str, default='regular', choices=['regular', 'small'])
+    parser.add_argument("--resume", action="store_true", help="Set to resume an experiment")
+
 
     args = parser.parse_args()
 
