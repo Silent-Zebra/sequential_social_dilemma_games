@@ -241,6 +241,7 @@ class CleanupAgent(Agent):
                  svo_angle=None, svo_weight=None):
         self.view_len = view_len
         self.num_agents = num_agents
+        self.cleans = 0
         super().__init__(agent_id, start_pos, start_orientation, grid, view_len,
                          view_len, intrinsic_rew_type, ineq_alpha, ineq_beta, w_self, w_others,
                          svo_angle, svo_weight)
@@ -276,6 +277,9 @@ class CleanupAgent(Agent):
         if char == 'F':
             self.reward_this_turn -= 1
             self.fires += 1
+        if char == 'C':
+            self.reward_this_turn -= 1
+            self.cleans += 1
 
     def get_done(self):
         return False
