@@ -316,9 +316,11 @@ if __name__ == "__main__":
     parser.add_argument("--num_workers_per_device", type=int, default="2", help="Number of workers to place on a single device (CPU or GPU)")
     # parser.add_argument("--intrinsic_rew_type", type=str, choices=['svo', 'ineq', 'altruism'], default=None,  help="Run agents with intrinsic reward modifications")
     parser.add_argument("--intrinsic_rew_params", type=str, default=None, help="Parameters for agents' intrinsic reward. Format: (rew_type, params) for each agent, semicolon delimited")
-    # Example intrinsic reward params --intrinsic_rew_params "('ineq',5.0,0.05);('altruism',1.0,0.2);('svo',90,0.2);None;None"
+    # Example intrinsic reward params --intrinsic_rew_params "('ineq',5.0,0.05,0.01);('altruism',1.0,0.2,0.01);('svo',90,0.2,0.01);None;None"
     # Ineq aversion is alpha, beta
     # Altruism is w_self, w_others
+    # SVO is angle (degrees), weight
+    # THird param is intrinsic reward scaling (Effectively changing the learning rate)
     parser.add_argument("--harvest_map", type=str, default='regular', choices=['regular', 'tiny', 'big'])
     parser.add_argument("--cleanup_map", type=str, default='regular', choices=['regular', 'small'])
     # parser.add_argument("--resume", action="store_true", help="Set to resume an experiment")

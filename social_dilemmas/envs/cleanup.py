@@ -128,19 +128,22 @@ class CleanupEnv(MapEnv):
                                      self.num_agents,
                                      intrinsic_rew_type="ineq",
                                      ineq_alpha=agent_params[1],
-                                     ineq_beta=agent_params[2])
+                                     ineq_beta=agent_params[2],
+                                     rew_scale=agent_params[3])
             elif agent_params[0].lower() == "altruism":
                 agent = CleanupAgent(agent_id, spawn_point, rotation, map_with_agents,
                                      self.num_agents,
                                      intrinsic_rew_type="altruism",
                                      w_self=agent_params[1],
-                                     w_others=agent_params[2])
+                                     w_others=agent_params[2],
+                                     rew_scale=agent_params[3])
             elif agent_params[0].lower() == "svo":
                 agent = CleanupAgent(agent_id, spawn_point, rotation, map_with_agents,
                                      self.num_agents,
                                      intrinsic_rew_type="svo",
                                      svo_angle=agent_params[1],
-                                     svo_weight=agent_params[2])
+                                     svo_weight=agent_params[2],
+                                     rew_scale=agent_params[3])
 
             self.agents[agent_id] = agent
 

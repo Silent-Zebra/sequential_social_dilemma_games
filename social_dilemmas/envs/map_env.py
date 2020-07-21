@@ -270,6 +270,8 @@ class MapEnv(MultiAgentEnv):
                     avg_smooth_rew = total_rew_sum / len(smoothed_rew_list)
                     intrins_rew = w_self * extrinsic_self_rew + w_others * avg_smooth_rew
 
+                intrins_rew *= agent.rew_scale
+
                 # update the reward dict
                 rewards[agent.agent_id] = intrins_rew
 
