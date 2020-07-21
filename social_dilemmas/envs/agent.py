@@ -172,9 +172,9 @@ class HarvestAgent(Agent):
     def __init__(self, agent_id, start_pos, start_orientation, grid, num_agents,
                  view_len=HARVEST_VIEW_SIZE, intrinsic_rew_type=None,
                  ineq_alpha=None, ineq_beta=None, w_self=None, w_others=None,
-                 svo_angle=None, svo_weight=None, rew_scale=1.0):
-
-
+                 svo_angle=None, svo_weight=None, rew_scale=1.0, hit_penalty=50, fire_cost=1):
+        self.hit_penalty = hit_penalty
+        self.fire_cost = fire_cost
         self.view_len = view_len
         self.num_agents = num_agents
         super().__init__(agent_id, start_pos, start_orientation, grid, view_len, view_len,
@@ -208,12 +208,12 @@ class HarvestAgent(Agent):
 
     def hit(self, char):
         if char == 'F':
-            self.reward_this_turn -= 50
+            self.reward_this_turn -= self.hit_penalty
             self.times_hit += 1
 
     def fire_beam(self, char):
         if char == 'F':
-            self.reward_this_turn -= 1
+            self.reward_this_turn -= self.fire_cost
             self.fires += 1
 
     def get_done(self):
@@ -239,7 +239,10 @@ class CleanupAgent(Agent):
     def __init__(self, agent_id, start_pos, start_orientation, grid, num_agents,
                  view_len=CLEANUP_VIEW_SIZE, intrinsic_rew_type=None,
                  ineq_alpha=None, ineq_beta=None, w_self=None, w_others=None,
-                 svo_angle=None, svo_weight=None, rew_scale=1.0):
+                 svo_angle=None, svo_weight=None, rew_scale=1.0, hit_penalty=50, fire_cost=1):
+
+        self.hit_penalty = hit_penalty
+        self.fire_cost = fire_cost
         self.view_len = view_len
         self.num_agents = num_agents
         self.cleans = 0
@@ -276,7 +279,7 @@ class CleanupAgent(Agent):
 
     def fire_beam(self, char):
         if char == 'F':
-            self.reward_this_turn -= 1
+            self.reward_this_turn -= self.fire_cost
             self.fires += 1
         if char == 'C':
             self.cleans += 1
@@ -286,7 +289,7 @@ class CleanupAgent(Agent):
 
     def hit(self, char):
         if char == 'F':
-            self.reward_this_turn -= 50
+            self.reward_this_turn -= self.hit_penalty
             self.times_hit += 1
 
     def consume(self, char):

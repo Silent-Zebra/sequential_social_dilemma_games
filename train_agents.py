@@ -152,7 +152,7 @@ def on_episode_end(info):
 def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
           num_agents, use_gpus_for_workers=False, use_gpu_for_driver=False,
           num_workers_per_device=1, intrinsic_rew_params=None, harvest_map='regular',
-          cleanup_map='regular'):
+          cleanup_map='regular', hit_penalty=50, fire_cost=1):
 
     if intrinsic_rew_params is None:
         ir_param_list = [None] * num_agents
@@ -272,7 +272,10 @@ def main(args):
                                       args.use_gpu_for_driver,
                                       args.num_workers_per_device,
                                       args.intrinsic_rew_params,
-                                      args.harvest_map)
+                                      args.harvest_map,
+                                      args.cleanup_map,
+                                      args.hit_penalty,
+                                      args.fire_cost)
 
     if args.exp_name is None:
         exp_name = args.env + '_' + args.algorithm
@@ -324,6 +327,8 @@ if __name__ == "__main__":
     parser.add_argument("--harvest_map", type=str, default='regular', choices=['regular', 'tiny', 'big'])
     parser.add_argument("--cleanup_map", type=str, default='regular', choices=['regular', 'small'])
     # parser.add_argument("--resume", action="store_true", help="Set to resume an experiment")
+    parser.add_argument("--hit_penalty", type=int, default=50, help="Cost of being hit by a punishment beam")
+    parser.add_argument("--fire_cost", type=int, default=1, help="Cost of firing a punishment beam")
 
 
     args = parser.parse_args()

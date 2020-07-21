@@ -25,10 +25,13 @@ appleRespawnProbability = 0.05
 
 class CleanupEnv(MapEnv):
 
-    def __init__(self, ascii_map=CLEANUP_MAP, num_agents=1, render=False, ir_param_list=None):
+    def __init__(self, ascii_map=CLEANUP_MAP, num_agents=1, render=False, ir_param_list=None,
+                 hit_penalty=50, fire_cost=1):
         super().__init__(ascii_map, num_agents, render, ir_param_list=ir_param_list)
         # self.ir_param_list = ir_param_list
 
+        self.hit_penalty = hit_penalty
+        self.fire_cost = fire_cost
         # compute potential waste area
         unique, counts = np.unique(self.base_map, return_counts=True)
         counts_dict = dict(zip(unique, counts))
@@ -122,28 +125,32 @@ class CleanupEnv(MapEnv):
             agent_params = self.ir_param_list[i]
             if agent_params is None:
                 agent = CleanupAgent(agent_id, spawn_point, rotation, map_with_agents,
-                                     self.num_agents)
+                                     self.num_agents,
+                                     hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
             elif agent_params[0].lower() == "ineq":
                 agent = CleanupAgent(agent_id, spawn_point, rotation, map_with_agents,
                                      self.num_agents,
                                      intrinsic_rew_type="ineq",
                                      ineq_alpha=agent_params[1],
                                      ineq_beta=agent_params[2],
-                                     rew_scale=agent_params[3])
+                                     rew_scale=agent_params[3],
+                                     hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
             elif agent_params[0].lower() == "altruism":
                 agent = CleanupAgent(agent_id, spawn_point, rotation, map_with_agents,
                                      self.num_agents,
                                      intrinsic_rew_type="altruism",
                                      w_self=agent_params[1],
                                      w_others=agent_params[2],
-                                     rew_scale=agent_params[3])
+                                     rew_scale=agent_params[3],
+                                     hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
             elif agent_params[0].lower() == "svo":
                 agent = CleanupAgent(agent_id, spawn_point, rotation, map_with_agents,
                                      self.num_agents,
                                      intrinsic_rew_type="svo",
                                      svo_angle=agent_params[1],
                                      svo_weight=agent_params[2],
-                                     rew_scale=agent_params[3])
+                                     rew_scale=agent_params[3],
+                                     hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
 
             self.agents[agent_id] = agent
 
