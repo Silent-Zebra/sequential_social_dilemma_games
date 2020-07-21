@@ -60,6 +60,8 @@ def print_episode_stats(n_agents, episode_rewards):
     print("Avg Reward: {}".format(average(episode_rewards)))
     print("Min Reward: {}".format(min(episode_rewards)))
     print("Max Reward: {}".format(max(episode_rewards)))
+    sys.stdout.flush()
+
     # Gini coefficient calc
     sum_abs_diff = 0
     for i in range(n_agents):
@@ -72,6 +74,8 @@ def print_episode_stats(n_agents, episode_rewards):
     sorted_rews = sorted(episode_rewards)
     min_20 = sum(sorted_rews[:n_20])
     max_20 = sum(sorted_rews[n_agents - n_20:])
+    sys.stdout.flush()
+
     if min_20 == 0:
         print("20:20 Ratio: Undefined")
     else:
@@ -101,6 +105,8 @@ def on_episode_end(info):
 
     # print_episode_stats(n_agents, episode_rewards)
 
+    sys.stdout.flush()
+
     print("Extrinsic Rewards:")
     # print(info["env"].envs)
     # print(info["env"].envs[0])
@@ -114,14 +120,22 @@ def on_episode_end(info):
 
     print_episode_stats(n_agents, extrinsic_rewards)
 
+    sys.stdout.flush()
+
     print("Times Fired")
     for agent in info["env"].envs[0].agents.values():
         print(agent.fires)
+
+    sys.stdout.flush()
+
 
     print("Times Hit")
     for agent in info["env"].envs[0].agents.values():
         print(agent.times_hit)
 
+    # print("Times Clean")
+    # for agent in info["env"].envs[0].agents.values():
+    #     print(agent.cleans)
 
     # Use custom metrics if still not working
     # or consider
