@@ -27,11 +27,12 @@ class CleanupEnv(MapEnv):
 
     def __init__(self, ascii_map=CLEANUP_MAP, num_agents=1, render=False, ir_param_list=None,
                  hit_penalty=50, fire_cost=1):
-        super().__init__(ascii_map, num_agents, render, ir_param_list=ir_param_list)
+        super().__init__(ascii_map, num_agents, render, ir_param_list=ir_param_list,
+                         hit_penalty=hit_penalty, fire_cost=fire_cost)
         # self.ir_param_list = ir_param_list
 
-        self.hit_penalty = hit_penalty
-        self.fire_cost = fire_cost
+        # self.hit_penalty = hit_penalty
+        # self.fire_cost = fire_cost
         # compute potential waste area
         unique, counts = np.unique(self.base_map, return_counts=True)
         counts_dict = dict(zip(unique, counts))

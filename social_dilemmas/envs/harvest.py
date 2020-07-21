@@ -16,9 +16,10 @@ class HarvestEnv(MapEnv):
 
     def __init__(self, ascii_map=HARVEST_MAP, num_agents=1, render=False, ir_param_list=None,
                          hit_penalty=50, fire_cost=1):
-        super().__init__(ascii_map, num_agents, render, ir_param_list=ir_param_list)
-        self.hit_penalty = hit_penalty
-        self.fire_cost = fire_cost
+        super().__init__(ascii_map, num_agents, render, ir_param_list=ir_param_list,
+                         hit_penalty=hit_penalty, fire_cost=fire_cost)
+        # self.hit_penalty = hit_penalty
+        # self.fire_cost = fire_cost
         self.apple_points = []
         for row in range(self.base_map.shape[0]):
             for col in range(self.base_map.shape[1]):

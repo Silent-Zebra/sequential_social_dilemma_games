@@ -59,7 +59,7 @@ DEFAULT_COLOURS = {' ': [0, 0, 0],  # Black background
 
 class MapEnv(MultiAgentEnv):
 
-    def __init__(self, ascii_map, num_agents=1, render=True, color_map=None, ir_param_list=None):
+    def __init__(self, ascii_map, num_agents=1, render=True, color_map=None, ir_param_list=None, hit_penalty=50, fire_cost=1):
         """
 
         Parameters
@@ -74,6 +74,8 @@ class MapEnv(MultiAgentEnv):
         color_map: dict
             Specifies how to convert between ascii chars and colors
         """
+        self.hit_penalty = hit_penalty
+        self.fire_cost = fire_cost
         self.num_agents = num_agents
         self.base_map = self.ascii_to_numpy(ascii_map)
         # map without agents or beams
