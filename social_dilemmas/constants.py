@@ -60,6 +60,24 @@ HARVEST_MAP = [
     '@       P     A         P  P P     P @',
     '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@']
 
+
+CLEANUP_MAP_SMALL = [
+    '@@@@@@@@@@@@@@@@@@',
+    '@RRRRRR     BBBBB@',
+    '@HHHHHH   P  BBBB@',
+    '@RRRRR  P    BBBB@',
+    '@RRRRR    P BBBBB@',
+    '@HHHHHHSSSSSSBBBB@',
+    '@HHHHHHSSSSSSBBBB@',
+    '@RRRRR   P P BBBB@',
+    '@HHHHH   P  BBBBB@',
+    '@RRRRRR    P BBBB@',
+    '@HHHHHH P   BBBBB@',
+    '@RRRRR       BBBB@',
+    '@HHHH       BBBBB@',
+    '@@@@@@@@@@@@@@@@@@']
+
+
 CLEANUP_MAP = [
     '@@@@@@@@@@@@@@@@@@',
     '@RRRRRR     BBBBB@',

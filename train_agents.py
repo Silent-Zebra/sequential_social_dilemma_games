@@ -14,7 +14,8 @@ import ast
 import argparse
 
 from social_dilemmas.envs.harvest import HarvestEnv
-from social_dilemmas.constants import HARVEST_MAP, HARVEST_MAP_BIG, HARVEST_MAP_TINY
+from social_dilemmas.constants import HARVEST_MAP, HARVEST_MAP_BIG, \
+    HARVEST_MAP_TINY, CLEANUP_MAP, CLEANUP_MAP_SMALL
 from social_dilemmas.envs.cleanup import CleanupEnv
 from models.conv_to_fc_net import ConvToFCNet
 
@@ -136,7 +137,8 @@ def on_episode_end(info):
 
 def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
           num_agents, use_gpus_for_workers=False, use_gpu_for_driver=False,
-          num_workers_per_device=1, intrinsic_rew_params=None, harvest_map='regular'):
+          num_workers_per_device=1, intrinsic_rew_params=None, harvest_map='regular',
+          cleanup_map='regular'):
 
     if intrinsic_rew_params is None:
         ir_param_list = [None] * num_agents
@@ -157,7 +159,10 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
         # single_env = HarvestEnv()
     else:
         def env_creator(_):
-            return CleanupEnv(num_agents=num_agents, ir_param_list=ir_param_list)
+            ascii_map = CLEANUP_MAP
+            if cleanup_map == 'small':
+                ascii_map = CLEANUP_MAP_SMALL
+            return CleanupEnv(ascii_map=ascii_map, num_agents=num_agents, ir_param_list=ir_param_list)
         # single_env = CleanupEnv()
 
     env_name = env + "_env"
@@ -301,6 +306,7 @@ if __name__ == "__main__":
     # Ineq aversion is alpha, beta
     # Altruism is w_self, w_others
     parser.add_argument("--harvest_map", type=str, default='regular', choices=['regular', 'tiny', 'big'])
+    parser.add_argument("--cleanup_map", type=str, default='regular', choices=['regular', 'small'])
 
     args = parser.parse_args()
 
