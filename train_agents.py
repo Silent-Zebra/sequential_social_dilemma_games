@@ -63,12 +63,15 @@ def print_episode_stats(n_agents, episode_rewards):
     sys.stdout.flush()
 
     # Gini coefficient calc
-    sum_abs_diff = 0
-    for i in range(n_agents):
-        for j in range(n_agents):
-            sum_abs_diff += np.abs(episode_rewards[i] - episode_rewards[j])
-    gini_coeff = sum_abs_diff / (2 * n_agents * sum(episode_rewards))
-    print("Gini Coefficient: {}".format(gini_coeff))
+    if sum(episode_rewards) == 0:
+        print("Gini Coefficient: Undefined")
+    else:
+        sum_abs_diff = 0
+        for i in range(n_agents):
+            for j in range(n_agents):
+                sum_abs_diff += np.abs(episode_rewards[i] - episode_rewards[j])
+        gini_coeff = sum_abs_diff / (2 * n_agents * sum(episode_rewards))
+        print("Gini Coefficient: {}".format(gini_coeff))
     # 20:20 ratio calc
     n_20 = max(1, int(np.round(n_agents / 5, 0)))
     sorted_rews = sorted(episode_rewards)
