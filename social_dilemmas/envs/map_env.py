@@ -310,6 +310,7 @@ class MapEnv(MultiAgentEnv):
                     if agent_actions[agent.agent_id] == 'FIRE':
                         for update in agent.updates:
                             for other_agent in self.agents.values():
+                                print("POSITIONS COMPARISON")
                                 print(old_positions[other_agent.agent_id])
                                 print(update)
                                 import sys
