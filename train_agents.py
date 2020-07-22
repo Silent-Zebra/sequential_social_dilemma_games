@@ -169,14 +169,16 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
                 ascii_map = HARVEST_MAP_TINY
             elif harvest_map == 'big':
                 ascii_map = HARVEST_MAP_BIG
-            return HarvestEnv(ascii_map=ascii_map, num_agents=num_agents, ir_param_list=ir_param_list)
+            return HarvestEnv(ascii_map=ascii_map, num_agents=num_agents, ir_param_list=ir_param_list,
+                              hit_penalty=hit_penalty, fire_cost=fire_cost)
         # single_env = HarvestEnv()
     else:
         def env_creator(_):
             ascii_map = CLEANUP_MAP
             if cleanup_map == 'small':
                 ascii_map = CLEANUP_MAP_SMALL
-            return CleanupEnv(ascii_map=ascii_map, num_agents=num_agents, ir_param_list=ir_param_list)
+            return CleanupEnv(ascii_map=ascii_map, num_agents=num_agents, ir_param_list=ir_param_list,
+                              hit_penalty=hit_penalty, fire_cost=fire_cost)
         # single_env = CleanupEnv()
 
     env_name = env + "_env"
