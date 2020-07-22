@@ -310,6 +310,10 @@ class MapEnv(MultiAgentEnv):
                     if agent_actions[agent.agent_id] == 'FIRE':
                         for update in agent.updates:
                             for other_agent in self.agents.values():
+                                print(old_positions[other_agent.agent_id])
+                                print(update)
+                                import sys
+                                sys.stdout.flush()
                                 if other_agent.agent_id == agent.agent_id:
                                     continue # skip self
                                 elif (old_positions[other_agent.agent_id][0] == update[0]) and (old_positions[other_agent.agent_id][1] == update[1]):
