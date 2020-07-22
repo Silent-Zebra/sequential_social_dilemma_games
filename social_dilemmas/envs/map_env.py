@@ -307,14 +307,18 @@ class MapEnv(MultiAgentEnv):
 
                 elif agent.intrinsic_rew_type == "vengeance":
                     intrins_rew = extrinsic_self_rew
+
+                    import sys
+                    print("AGENT ACTION")
+                    print(agent_actions[agent.agent_id])
+                    sys.stdout.flush()
+
                     if agent_actions[agent.agent_id] == 'FIRE':
                         for update in agent.updates:
                             for other_agent in self.agents.values():
                                 print("POSITIONS COMPARISON")
                                 print(old_positions[other_agent.agent_id])
                                 print(update)
-                                1/0
-                                import sys
                                 sys.stdout.flush()
                                 if other_agent.agent_id == agent.agent_id:
                                     continue # skip self
