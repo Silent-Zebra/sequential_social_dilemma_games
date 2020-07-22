@@ -72,6 +72,14 @@ class HarvestEnv(MapEnv):
                                      svo_weight=agent_params[2],
                                      rew_scale=agent_params[3],
                                      hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
+            elif agent_params[0].lower() == "gini":
+                agent = HarvestAgent(agent_id, spawn_point, rotation, grid,
+                                     self.num_agents,
+                                     intrinsic_rew_type="gini",
+                                     gini_weight=agent_params[1],
+                                     # svo_weight=agent_params[2],
+                                     rew_scale=agent_params[2],
+                                     hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
             # agent = HarvestAgent(agent_id, spawn_point, rotation, grid)
 
             # grid = util.return_view(map_with_agents, spawn_point,

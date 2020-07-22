@@ -19,7 +19,8 @@ class Agent(object):
 
     def __init__(self, agent_id, start_pos, start_orientation, grid, row_size, col_size,
                  intrinsic_rew_type=None, ineq_alpha=None, ineq_beta=None, w_self=None, w_others=None,
-                 svo_angle=None, svo_weight=None, rew_scale=1.0):
+                 svo_angle=None, svo_weight=None, gini_weight=None,
+                 vengeance_threshold=None, vengeance_rew=None, rew_scale=1.0):
         """Superclass for all agents.
 
         Parameters
@@ -43,6 +44,9 @@ class Agent(object):
         self.w_others = w_others
         self.svo_angle = svo_angle
         self.svo_weight = svo_weight
+        self.gini_weight = gini_weight
+        self.vengeance_threshold = vengeance_threshold
+        self.vengeance_rew = vengeance_rew
         self.rew_scale = rew_scale # Scaling for turning down effective learning rate on intrinsic reward. A multiplicative factor (so 0.01 to reduce learning by factor of 100)
 
         self.times_hit = 0
@@ -172,14 +176,15 @@ class HarvestAgent(Agent):
     def __init__(self, agent_id, start_pos, start_orientation, grid, num_agents,
                  view_len=HARVEST_VIEW_SIZE, intrinsic_rew_type=None,
                  ineq_alpha=None, ineq_beta=None, w_self=None, w_others=None,
-                 svo_angle=None, svo_weight=None, rew_scale=1.0, hit_penalty=50, fire_cost=1):
+                 svo_angle=None, svo_weight=None, gini_weight=None, vengeance_threshold=None,
+                 vengeance_rew=None, rew_scale=1.0, hit_penalty=50, fire_cost=1):
         self.hit_penalty = hit_penalty
         self.fire_cost = fire_cost
         self.view_len = view_len
         self.num_agents = num_agents
         super().__init__(agent_id, start_pos, start_orientation, grid, view_len, view_len,
                          intrinsic_rew_type, ineq_alpha, ineq_beta, w_self, w_others,
-                         svo_angle, svo_weight, rew_scale)
+                         svo_angle, svo_weight, gini_weight, vengeance_threshold, vengeance_rew, rew_scale)
         self.update_agent_pos(start_pos)
         self.update_agent_rot(start_orientation)
 
@@ -239,7 +244,8 @@ class CleanupAgent(Agent):
     def __init__(self, agent_id, start_pos, start_orientation, grid, num_agents,
                  view_len=CLEANUP_VIEW_SIZE, intrinsic_rew_type=None,
                  ineq_alpha=None, ineq_beta=None, w_self=None, w_others=None,
-                 svo_angle=None, svo_weight=None, rew_scale=1.0, hit_penalty=50, fire_cost=1):
+                 svo_angle=None, svo_weight=None, gini_weight=None, vengeance_threshold=None,
+                 vengeance_rew=None, rew_scale=1.0, hit_penalty=50, fire_cost=1):
 
         self.hit_penalty = hit_penalty
         self.fire_cost = fire_cost
@@ -248,7 +254,7 @@ class CleanupAgent(Agent):
         self.cleans = 0
         super().__init__(agent_id, start_pos, start_orientation, grid, view_len,
                          view_len, intrinsic_rew_type, ineq_alpha, ineq_beta, w_self, w_others,
-                         svo_angle, svo_weight, rew_scale)
+                         svo_angle, svo_weight, gini_weight, vengeance_rew, vengeance_threshold, rew_scale)
         # remember what you've stepped on
         self.update_agent_pos(start_pos)
         self.update_agent_rot(start_orientation)
