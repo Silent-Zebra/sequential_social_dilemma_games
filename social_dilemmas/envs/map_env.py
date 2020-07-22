@@ -298,8 +298,8 @@ class MapEnv(MultiAgentEnv):
                 elif agent.intrinsic_rew_type == "gini":
                     intrins_rew = extrinsic_self_rew - agent.gini_weight * gini_coeff
 
-                elif agent.intrinsic_rew_type == "vengeance":
-                    intrins_rew = extrinsic_self_rew + agent.vengeance_rew * # agents hit above threshold
+                # elif agent.intrinsic_rew_type == "vengeance":
+                #     intrins_rew = extrinsic_self_rew + agent.vengeance_rew * # agents hit above threshold
 
                 intrins_rew *= agent.rew_scale
 
