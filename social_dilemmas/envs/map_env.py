@@ -241,11 +241,13 @@ class MapEnv(MultiAgentEnv):
                 for j in range(n_agents):
                     sum_abs_diff += np.abs(
                         smoothed_rew_list[i] - smoothed_rew_list[j])
-            gini_coeff = sum_abs_diff / (
-                    2 * n_agents * sum(smoothed_rew_list))
-            if (not isinstance(gini_coeff, (int, float))) or (
-                    gini_coeff < 0) or (gini_coeff > 1):
-                gini_coeff = 1.0  # stuff like division by 0, and even 0/0 call it 1 to incentivize not doing nothing. Also avoid weird negatives or really wacky high values
+            if total_rew_sum == 0:
+                gini_coeff = 1.0 # stuff like division by 0, and even 0/0 call it 1 to incentivize not doing nothing.
+            else:
+                gini_coeff = sum_abs_diff / (
+                    2 * n_agents * total_rew_sum)
+            if (gini_coeff < 0) or (gini_coeff > 1):
+                gini_coeff = 1.0  # Avoid weird negatives or really wacky high values
                 # btw this being scaled between 0 and 1 works nicely given our environment which has temporal rewards 1 for harvesting.
                 # Then 1 should be a decent default weight. Maybe even > 1 to reduce incentive to collect, increase incentive to care about ineq.
 
