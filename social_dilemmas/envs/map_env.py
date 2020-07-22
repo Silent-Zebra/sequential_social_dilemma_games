@@ -309,11 +309,15 @@ class MapEnv(MultiAgentEnv):
                     intrins_rew = extrinsic_self_rew
 
                     import sys
-                    print("AGENT ACTION")
-                    print(agent_actions[agent.agent_id])
-                    sys.stdout.flush()
+                    # print("AGENT ACTION")
+                    # print(agent_actions[agent.agent_id])
+                    # sys.stdout.flush()
 
                     if agent_actions[agent.agent_id] == 'FIRE':
+                        print("AGENT FIRED")
+                        sys.stdout.flush()
+                        print(agent.updates)
+                        sys.stdout.flush()
                         for update in agent.updates:
                             for other_agent in self.agents.values():
                                 print("POSITIONS COMPARISON")
