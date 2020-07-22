@@ -166,6 +166,10 @@ class MapEnv(MultiAgentEnv):
         info: dict to pass extra info to gym
         """
 
+        old_positions = {}
+        for agent in self.agents.values():
+            old_positions[agent.agent_id] = agent.get_pos()
+
         self.beam_pos = []
         agent_actions = {}
         for agent_id, action in actions.items():
@@ -207,6 +211,7 @@ class MapEnv(MultiAgentEnv):
 
             # if self.intrinsic_rew_type is not None:
             lambdgamma = 0.975 # smoothing hyperparam here TODO make arg/setting
+            agent.last_smoothed_extrinsic_reward = agent.smoothed_extrinsic_reward
             agent.smoothed_extrinsic_reward = lambdgamma * agent.smoothed_extrinsic_reward + rew
             smoothed_rew_list.append(agent.smoothed_extrinsic_reward)
 
@@ -300,8 +305,18 @@ class MapEnv(MultiAgentEnv):
                 elif agent.intrinsic_rew_type == "gini":
                     intrins_rew = extrinsic_self_rew - agent.gini_weight * gini_coeff
 
-                # elif agent.intrinsic_rew_type == "vengeance":
-                #     intrins_rew = extrinsic_self_rew + agent.vengeance_rew * # agents hit above threshold
+                elif agent.intrinsic_rew_type == "vengeance":
+                    intrins_rew = extrinsic_self_rew
+                    if agent_actions[agent.agent_id] == 'FIRE':
+                        for update in agent.updates:
+                            for other_agent in self.agents.values():
+                                if other_agent.agent_id == agent.agent_id:
+                                    continue # skip self
+                                elif (old_positions[other_agent.agent_id][0] == update[0]) and (old_positions[other_agent.agent_id][1] == update[1]):
+                                    # agent has been hit
+                                    if other_agent.last_smoothed_extrinsic_reward - agent.last_smoothed_extrinsic_reward > agent.vengeance_threshold: # if other agent in excess of reward diff barrier
+                                        intrins_rew += agent.vengeance_rew # get modification (intrinsic satisfaction) if hitting agent which exceeds threshold
+
 
                 intrins_rew *= agent.rew_scale
 
@@ -346,6 +361,8 @@ class MapEnv(MultiAgentEnv):
             #     observations[agent.agent_id] = rgb_arr
             agent.extrinsic_reward_sum = 0
             agent.smoothed_extrinsic_reward = 0
+            agent.last_smoothed_extrinsic_reward = 0
+
 
         # print("RESET OBS")
         # print(observations)

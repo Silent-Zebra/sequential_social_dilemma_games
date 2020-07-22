@@ -187,6 +187,7 @@ class HarvestAgent(Agent):
                          svo_angle, svo_weight, gini_weight, vengeance_threshold, vengeance_rew, rew_scale)
         self.update_agent_pos(start_pos)
         self.update_agent_rot(start_orientation)
+        self.updates = None
 
     @property
     def action_space(self):

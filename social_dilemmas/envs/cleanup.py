@@ -93,6 +93,7 @@ class CleanupEnv(MapEnv):
             updates = self.update_map_fire(agent.get_pos().tolist(),
                                            agent.get_orientation(), ACTIONS['FIRE'],
                                            fire_char='F')
+            agent.updates = updates
         elif action == 'CLEAN':
             agent.fire_beam('C')
             updates = self.update_map_fire(agent.get_pos().tolist(),
@@ -159,6 +160,14 @@ class CleanupEnv(MapEnv):
                                      gini_weight=agent_params[1],
                                      # svo_weight=agent_params[2],
                                      rew_scale=agent_params[2],
+                                     hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
+            elif agent_params[0].lower() == "vengeance":
+                agent = CleanupAgent(agent_id, spawn_point, rotation, map_with_agents,
+                                     self.num_agents,
+                                     intrinsic_rew_type="vengeance",
+                                     vengeance_threshold=agent_params[1],
+                                     vengeance_rew=agent_params[2],
+                                     rew_scale=agent_params[3],
                                      hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
 
             self.agents[agent_id] = agent
