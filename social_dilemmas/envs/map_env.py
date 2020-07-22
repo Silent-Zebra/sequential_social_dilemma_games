@@ -313,6 +313,7 @@ class MapEnv(MultiAgentEnv):
                                 print("POSITIONS COMPARISON")
                                 print(old_positions[other_agent.agent_id])
                                 print(update)
+                                1/0
                                 import sys
                                 sys.stdout.flush()
                                 if other_agent.agent_id == agent.agent_id:
