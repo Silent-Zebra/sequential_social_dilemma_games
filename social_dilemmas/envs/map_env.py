@@ -316,17 +316,18 @@ class MapEnv(MultiAgentEnv):
                     if agent_actions[agent.agent_id] == 'FIRE':
                         print("AGENT FIRED")
                         sys.stdout.flush()
-                        print(agent.updates)
+                        print(agent.agents_hit)
                         sys.stdout.flush()
-                        for update in agent.updates:
+                        for agent_id in agent.agents_hit:
                             for other_agent in self.agents.values():
-                                print("POSITIONS COMPARISON")
-                                print(old_positions[other_agent.agent_id])
-                                print(update)
-                                sys.stdout.flush()
+                                # print("POSITIONS COMPARISON")
+                                # print(old_positions[other_agent.agent_id])
+                                # print(update)
+                                # sys.stdout.flush()
                                 if other_agent.agent_id == agent.agent_id:
                                     continue # skip self
-                                elif (old_positions[other_agent.agent_id][0] == update[0]) and (old_positions[other_agent.agent_id][1] == update[1]):
+                                # elif (old_positions[other_agent.agent_id][0] == update[0]) and (old_positions[other_agent.agent_id][1] == update[1]):
+                                elif agent_id == other_agent.agent_id:
                                     # agent has been hit
                                     if other_agent.last_smoothed_extrinsic_reward - agent.last_smoothed_extrinsic_reward > agent.vengeance_threshold: # if other agent in excess of reward diff barrier
                                         intrins_rew += agent.vengeance_rew # get modification (intrinsic satisfaction) if hitting agent which exceeds threshold
@@ -701,7 +702,7 @@ class MapEnv(MultiAgentEnv):
         self.custom_reset()
 
     def update_map_fire(self, firing_pos, firing_orientation, fire_len, fire_char, cell_types=[],
-                        update_char=[], blocking_cells='P'):
+                        update_char=[], blocking_cells='P', return_agents_hit=True):
         """From a firing position, fire a beam that may clean or hit agents
 
         Notes:
@@ -746,6 +747,7 @@ class MapEnv(MultiAgentEnv):
                       start_pos - right_shift - firing_direction]
         firing_points = []
         updates = []
+        agents_hit = []
         for pos in firing_pos:
             next_cell = pos + firing_direction
             for i in range(fire_len):
@@ -758,6 +760,7 @@ class MapEnv(MultiAgentEnv):
                     if [next_cell[0], next_cell[1]] in self.agent_pos:
                         agent_id = agent_by_pos[(next_cell[0], next_cell[1])]
                         self.agents[agent_id].hit(fire_char)
+                        agents_hit.append(agent_id)
                         firing_points.append((next_cell[0], next_cell[1], fire_char))
                         if self.world_map[next_cell[0], next_cell[1]] in cell_types:
                             type_index = cell_types.index(self.world_map[next_cell[0],
@@ -783,6 +786,8 @@ class MapEnv(MultiAgentEnv):
                     break
 
         self.beam_pos += firing_points
+        if return_agents_hit:
+            return updates, agents_hit
         return updates
 
     def spawn_point(self):

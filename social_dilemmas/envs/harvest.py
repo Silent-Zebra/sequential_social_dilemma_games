@@ -102,14 +102,11 @@ class HarvestEnv(MapEnv):
 
     def custom_action(self, agent, action):
         agent.fire_beam('F')
-        updates = self.update_map_fire(agent.get_pos().tolist(),
+        updates, agents_hit = self.update_map_fire(agent.get_pos().tolist(),
                                        agent.get_orientation(),
                                        ACTIONS['FIRE'], fire_char='F')
-        print("UPDATES")
-        print(updates)
-        import sys
-        sys.stdout.flush()
-        agent.updates = updates
+
+        agent.agents_hit = agents_hit
         return updates
 
     def custom_map_update(self):
