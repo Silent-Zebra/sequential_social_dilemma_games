@@ -105,6 +105,9 @@ class HarvestEnv(MapEnv):
         updates = self.update_map_fire(agent.get_pos().tolist(),
                                        agent.get_orientation(),
                                        ACTIONS['FIRE'], fire_char='F')
+        print(updates)
+        import sys
+        sys.stdout.flush()
         agent.updates = updates
         return updates
 
