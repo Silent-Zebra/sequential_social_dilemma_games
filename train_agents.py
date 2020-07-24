@@ -43,113 +43,113 @@ cleanup_default_params = {
     'entropy_coeff': -.00176}
 
 
-def on_episode_start(info):
-    episode = info["episode"]
-    # print("episode {} started".format(episode.episode_id))
-    # sys.stdout.flush()
-    episode.policy_rewards = collections.defaultdict(list)
-
-# def on_episode_step(info):
+# def on_episode_start(info):
 #     episode = info["episode"]
-#     pole_angle = abs(episode.last_observation_for()[2])
-#     episode.user_data["pole_angles"].append(pole_angle)
-
-
-def print_episode_stats(n_agents, episode_rewards):
-    print("Sum Reward: {}".format(sum(episode_rewards)))
-    print("Avg Reward: {}".format(average(episode_rewards)))
-    print("Min Reward: {}".format(min(episode_rewards)))
-    print("Max Reward: {}".format(max(episode_rewards)))
-    sys.stdout.flush()
-
-    # Gini coefficient calc
-    if sum(episode_rewards) == 0:
-        print("Gini Coefficient: Undefined")
-    else:
-        sum_abs_diff = 0
-        for i in range(n_agents):
-            for j in range(n_agents):
-                sum_abs_diff += np.abs(episode_rewards[i] - episode_rewards[j])
-        gini_coeff = sum_abs_diff / (2 * n_agents * sum(episode_rewards))
-        print("Gini Coefficient: {}".format(gini_coeff))
-    # 20:20 ratio calc
-    n_20 = max(1, int(np.round(n_agents / 5, 0)))
-    sorted_rews = sorted(episode_rewards)
-    min_20 = sum(sorted_rews[:n_20])
-    max_20 = sum(sorted_rews[n_agents - n_20:])
-    sys.stdout.flush()
-
-    if min_20 == 0:
-        print("20:20 Ratio: Undefined")
-    else:
-        ratio_20 = max_20 / min_20
-        print("20:20 Ratio: {}".format(ratio_20))
-    if sorted_rews[0] == 0:
-        print("Max-min Ratio: Undefined")
-    else:
-        print("Max-min Ratio: {}".format(sorted_rews[-1] / sorted_rews[0]))
-
-    sys.stdout.flush()
-
-
-
-def on_episode_end(info):
-    episode = info["episode"]
-    n_agents = 0
-    episode_rewards = []
-    for (_, policy_id), reward in episode.agent_rewards.items():
-        n_agents += 1
-        episode.policy_rewards[policy_id].append(reward)
-        episode_rewards.append(reward)
-        print("agent-{}: {}".format(n_agents, reward))
-    # print("episode {} ended with length {}".format(
-    #     episode.episode_id, episode.length))
-    # print(episode.policy_rewards)
-
-    # print_episode_stats(n_agents, episode_rewards)
-
-    sys.stdout.flush()
-
-    print("Extrinsic Rewards:")
-    # print(info["env"].envs)
-    # print(info["env"].envs[0])
-    # print(info["env"].envs[0].agents)
-    # print(info["env"].envs[0].agents.values())
-    extrinsic_rewards = []
-
-    for agent in info["env"].envs[0].agents.values():
-        print(agent.extrinsic_reward_sum)
-        extrinsic_rewards.append(agent.extrinsic_reward_sum)
-
-    print_episode_stats(n_agents, extrinsic_rewards)
-
-    sys.stdout.flush()
-
-    print("Times Fired")
-    for agent in info["env"].envs[0].agents.values():
-        print(agent.fires)
-
-    sys.stdout.flush()
-
-
-    print("Times Hit")
-    for agent in info["env"].envs[0].agents.values():
-        print(agent.times_hit)
-
-    # print("Times Clean")
-    # for agent in info["env"].envs[0].agents.values():
-    #     print(agent.cleans)
-
-    # Use custom metrics if still not working
-    # or consider
-    # from pprint import pprint
-    # pprint(vars(info["env"]))
-    # pprint(vars(info["episode"]))
-    # on info and info["env"] and info["episode"] to see what's available
-
-
-
-    sys.stdout.flush()
+#     # print("episode {} started".format(episode.episode_id))
+#     # sys.stdout.flush()
+#     episode.policy_rewards = collections.defaultdict(list)
+#
+# # def on_episode_step(info):
+# #     episode = info["episode"]
+# #     pole_angle = abs(episode.last_observation_for()[2])
+# #     episode.user_data["pole_angles"].append(pole_angle)
+#
+#
+# def print_episode_stats(n_agents, episode_rewards):
+#     print("Sum Reward: {}".format(sum(episode_rewards)))
+#     print("Avg Reward: {}".format(average(episode_rewards)))
+#     print("Min Reward: {}".format(min(episode_rewards)))
+#     print("Max Reward: {}".format(max(episode_rewards)))
+#     sys.stdout.flush()
+#
+#     # Gini coefficient calc
+#     if sum(episode_rewards) == 0:
+#         print("Gini Coefficient: Undefined")
+#     else:
+#         sum_abs_diff = 0
+#         for i in range(n_agents):
+#             for j in range(n_agents):
+#                 sum_abs_diff += np.abs(episode_rewards[i] - episode_rewards[j])
+#         gini_coeff = sum_abs_diff / (2 * n_agents * sum(episode_rewards))
+#         print("Gini Coefficient: {}".format(gini_coeff))
+#     # 20:20 ratio calc
+#     n_20 = max(1, int(np.round(n_agents / 5, 0)))
+#     sorted_rews = sorted(episode_rewards)
+#     min_20 = sum(sorted_rews[:n_20])
+#     max_20 = sum(sorted_rews[n_agents - n_20:])
+#     sys.stdout.flush()
+#
+#     if min_20 == 0:
+#         print("20:20 Ratio: Undefined")
+#     else:
+#         ratio_20 = max_20 / min_20
+#         print("20:20 Ratio: {}".format(ratio_20))
+#     if sorted_rews[0] == 0:
+#         print("Max-min Ratio: Undefined")
+#     else:
+#         print("Max-min Ratio: {}".format(sorted_rews[-1] / sorted_rews[0]))
+#
+#     sys.stdout.flush()
+#
+#
+#
+# def on_episode_end(info):
+#     episode = info["episode"]
+#     n_agents = 0
+#     episode_rewards = []
+#     for (_, policy_id), reward in episode.agent_rewards.items():
+#         n_agents += 1
+#         episode.policy_rewards[policy_id].append(reward)
+#         episode_rewards.append(reward)
+#         print("agent-{}: {}".format(n_agents, reward))
+#     # print("episode {} ended with length {}".format(
+#     #     episode.episode_id, episode.length))
+#     # print(episode.policy_rewards)
+#
+#     # print_episode_stats(n_agents, episode_rewards)
+#
+#     sys.stdout.flush()
+#
+#     print("Extrinsic Rewards:")
+#     # print(info["env"].envs)
+#     # print(info["env"].envs[0])
+#     # print(info["env"].envs[0].agents)
+#     # print(info["env"].envs[0].agents.values())
+#     extrinsic_rewards = []
+#
+#     for agent in info["env"].envs[0].agents.values():
+#         print(agent.extrinsic_reward_sum)
+#         extrinsic_rewards.append(agent.extrinsic_reward_sum)
+#
+#     print_episode_stats(n_agents, extrinsic_rewards)
+#
+#     sys.stdout.flush()
+#
+#     print("Times Fired")
+#     for agent in info["env"].envs[0].agents.values():
+#         print(agent.fires)
+#
+#     sys.stdout.flush()
+#
+#
+#     print("Times Hit")
+#     for agent in info["env"].envs[0].agents.values():
+#         print(agent.times_hit)
+#
+#     # print("Times Clean")
+#     # for agent in info["env"].envs[0].agents.values():
+#     #     print(agent.cleans)
+#
+#     # Use custom metrics if still not working
+#     # or consider
+#     # from pprint import pprint
+#     # pprint(vars(info["env"]))
+#     # pprint(vars(info["episode"]))
+#     # on info and info["env"] and info["episode"] to see what's available
+#
+#
+#
+#     sys.stdout.flush()
 
 
 def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
@@ -239,10 +239,10 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
                 "num_cpus_for_driver": cpus_for_driver,
                 "num_gpus_per_worker": num_gpus_per_worker,   # Can be a fraction
                 "num_cpus_per_worker": num_cpus_per_worker,   # Can be a fraction
-                "callbacks": {
-                    "on_episode_start": tune.function(on_episode_start),
-                    "on_episode_end": tune.function(on_episode_end),
-                },
+                # "callbacks": {
+                #     "on_episode_start": tune.function(on_episode_start),
+                #     "on_episode_end": tune.function(on_episode_end),
+                # },
                 # "multiagent": {
                 #     "policy_graphs": policy_graphs,
                 #     "policy_mapping_fn": tune.function(policy_mapping_fn),
