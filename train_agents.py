@@ -154,7 +154,8 @@ def on_episode_end(info):
 
 def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
           num_agents, use_gpus_for_workers=False, use_gpu_for_driver=False,
-          num_workers_per_device=1, num_envs_per_worker=1, remote_worker_envs=False,
+          num_workers_per_device=1, num_envs_per_worker=1,
+          # remote_worker_envs=False,
           intrinsic_rew_params=None, harvest_map='regular',
           cleanup_map='regular', hit_penalty=50, fire_cost=1):
 
@@ -241,7 +242,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
                 "num_gpus_per_worker": num_gpus_per_worker,   # Can be a fraction
                 "num_cpus_per_worker": num_cpus_per_worker,   # Can be a fraction
                 "num_envs_per_worker": num_envs_per_worker,
-                "remote_worker_envs": remote_worker_envs,
+                # "remote_worker_envs": remote_worker_envs,
                 "callbacks": {
                     "on_episode_start": tune.function(on_episode_start),
                     "on_episode_end": tune.function(on_episode_end),
@@ -280,7 +281,7 @@ def main(args):
                                       args.use_gpu_for_driver,
                                       args.num_workers_per_device,
                                       args.num_envs_per_worker,
-                                      args.remote_worker_envs,
+                                      # args.remote_worker_envs,
                                       args.intrinsic_rew_params,
                                       args.harvest_map,
                                       args.cleanup_map,
@@ -328,7 +329,7 @@ if __name__ == "__main__":
     parser.add_argument("--use_gpu_for_driver", action="store_true", help="Set to true to run driver on GPU rather than CPU.")
     parser.add_argument("--num_workers_per_device", type=int, default="2", help="Number of workers to place on a single device (CPU or GPU)")
     parser.add_argument("--num_envs_per_worker", type=int, default="1", help="For vectorized environment")
-    parser.add_argument("--remote_worker_envs", action="store_true", help="Ray's remote worker envs flag")
+    # parser.add_argument("--remote_worker_envs", action="store_true", help="Ray's remote worker envs flag")
 
     # parser.add_argument("--intrinsic_rew_type", type=str, choices=['svo', 'ineq', 'altruism'], default=None,  help="Run agents with intrinsic reward modifications")
     parser.add_argument("--intrinsic_rew_params", type=str, default=None, help="Parameters for agents' intrinsic reward. Format: (rew_type, params) for each agent, semicolon delimited")
