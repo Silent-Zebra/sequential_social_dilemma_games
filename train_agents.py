@@ -156,7 +156,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
           num_agents, use_gpus_for_workers=False, use_gpu_for_driver=False,
           num_workers_per_device=1, num_envs_per_worker=1,
           # remote_worker_envs=False,
-          intrinsic_rew_params=None, harvest_map='regular',
+          intrinsic_rew_params=None, impala_replay=False, harvest_map='regular',
           cleanup_map='regular', hit_penalty=50, fire_cost=1):
 
     if intrinsic_rew_params is None:
@@ -256,12 +256,16 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
 
     })
 
-    if algorithm in ["A2C", "A3C"]:
+    if algorithm in ["A2C", "A3C", "IMPALA"]:
         config.update({"lr_schedule":
                 [[0, hparams['lr_init']],
                     [20000000, hparams['lr_final']]],
                        "entropy_coeff": hparams['entropy_coeff']
                        })
+
+    if algorithm in ["IMPALA"] and impala_replay:
+        config.update({"replay_proportion": 0.5, "replay_buffer_num_slots": 10000})
+
 
 
     return algorithm, env_name, config
@@ -283,6 +287,7 @@ def main(args):
                                       args.num_envs_per_worker,
                                       # args.remote_worker_envs,
                                       args.intrinsic_rew_params,
+                                      args.impala_replay,
                                       args.harvest_map,
                                       args.cleanup_map,
                                       args.hit_penalty,
@@ -343,6 +348,7 @@ if __name__ == "__main__":
     # parser.add_argument("--resume", action="store_true", help="Set to resume an experiment")
     parser.add_argument("--hit_penalty", type=int, default=50, help="Cost of being hit by a punishment beam")
     parser.add_argument("--fire_cost", type=int, default=1, help="Cost of firing a punishment beam")
+    parser.add_argument("--impala_replay", action="store_true", help="Use IMPALA Replay Buffer")
 
 
     args = parser.parse_args()
