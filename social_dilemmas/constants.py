@@ -41,6 +41,16 @@ HARVEST_MAP_TINY = [
     '@ P  P P @',
     '@@@@@@@@@@']
 
+# Toy - even smaller than tiny
+HARVEST_MAP_TOY = [
+    '@@@@@@@',
+    '@ P P @',
+    '@P A P@',
+    '@ AAA @',
+    '@P A P@',
+    '@ P P @',
+    '@@@@@@@']
+
 # Default
 HARVEST_MAP = [
     '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',
