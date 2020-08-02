@@ -25,7 +25,7 @@ class ConvToFCNet(Model):
         # import sys
         # sys.stdout.flush()
 
-        smoothed_rews = []
+        smoothed_rews = None
         if isinstance(inputs, list):
             smoothed_rews = inputs[1]
             inputs = inputs[0]
@@ -71,8 +71,8 @@ class ConvToFCNet(Model):
             # print(output.shape)
             # sys.stdout.flush()
 
-
-            output = tf.concat([output, smoothed_rews], axis=-1)
+            if smoothed_rews is not None:
+                output = tf.concat([output, smoothed_rews], axis=-1)
 
 
             # print(output)

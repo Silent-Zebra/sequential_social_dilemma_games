@@ -6,6 +6,7 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 from ray.rllib.env import MultiAgentEnv
+import math
 
 ACTIONS = {'MOVE_LEFT': [-1, 0],  # Move left
            'MOVE_RIGHT': [1, 0],  # Move right
@@ -58,7 +59,7 @@ DEFAULT_COLOURS = {' ': [0, 0, 0],  # Black background
 
 class MapEnv(MultiAgentEnv):
 
-    def __init__(self, ascii_map, num_agents=1, render=True, color_map=None):
+    def __init__(self, ascii_map, num_agents=1, render=True, color_map=None, ir_param_list=None, hit_penalty=50, fire_cost=1):
         """
 
         Parameters
@@ -73,11 +74,16 @@ class MapEnv(MultiAgentEnv):
         color_map: dict
             Specifies how to convert between ascii chars and colors
         """
+        self.hit_penalty = hit_penalty
+        self.fire_cost = fire_cost
         self.num_agents = num_agents
         self.base_map = self.ascii_to_numpy(ascii_map)
         # map without agents or beams
         self.world_map = np.full((len(self.base_map), len(self.base_map[0])), ' ')
         self.beam_pos = []
+
+        self.ir_param_list = ir_param_list
+
 
         self.agents = {}
 
@@ -143,7 +149,7 @@ class MapEnv(MultiAgentEnv):
                 arr[row, col] = ascii_list[row][col]
         return arr
 
-    def step(self, actions, intrinsic_reward=True):
+    def step(self, actions):
         """Takes in a dict of actions and converts them to a map update
 
         Parameters
@@ -159,6 +165,10 @@ class MapEnv(MultiAgentEnv):
         dones: dict indicating whether each agent is done
         info: dict to pass extra info to gym
         """
+
+        old_positions = {}
+        for agent in self.agents.values():
+            old_positions[agent.agent_id] = agent.get_pos()
 
         self.beam_pos = []
         agent_actions = {}
@@ -198,13 +208,18 @@ class MapEnv(MultiAgentEnv):
             agent.extrinsic_reward_sum += rew
             rewards_list.append(rew)
             dones[agent.agent_id] = agent.get_done()
-            if intrinsic_reward:
-                lambdgamma = 0.975 # smoothing hyperparam here TODO make arg/setting
-                agent.smoothed_extrinsic_reward = lambdgamma * agent.smoothed_extrinsic_reward + rew
-                smoothed_rew_list.append(agent.smoothed_extrinsic_reward)
 
+            # if self.intrinsic_rew_type is not None:
+            lambdgamma = 0.975 # smoothing hyperparam here TODO make arg/setting
+            agent.last_smoothed_extrinsic_reward = agent.smoothed_extrinsic_reward
+            agent.smoothed_extrinsic_reward = lambdgamma * agent.smoothed_extrinsic_reward + rew
+            smoothed_rew_list.append(agent.smoothed_extrinsic_reward)
+
+        # if self.intrinsic_rew_type is not None:
         for agent in self.agents.values():
             agent.smoothed_rew_arr = np.array(smoothed_rew_list)
+            # if agent.intrinsic_rew_type is not None:
+            # All agents observe same thing, even if no effect on reward
             observations[agent.agent_id] = (observations[agent.agent_id], agent.smoothed_rew_arr)
 
         # print("SMOOTHED OBS")
@@ -213,55 +228,112 @@ class MapEnv(MultiAgentEnv):
         # sys.stdout.flush()
 
 
-        if intrinsic_reward:
+        # if self.intrinsic_rew_type is not None:
 
-            # Start with a constant parameter, later we'll have it as a
-            # property of each agent, such as agent.svo = 0.9 or something
-            # And then have a more sophisticated calc
-            # Well this is not SVO, or is it? See the original psych SVO paper
-            # Just a weighting of rewards of others vs own
-            # Well alpha,beta=1 means every agent maxes sum reward of all
+        total_rew_sum = sum(smoothed_rew_list)
+        old_rewards = rewards.copy() # oh actually copy not even needed in formulation below
 
-            total_rew_sum = sum(smoothed_rew_list)
-            old_rewards = rewards.copy() # oh actually copy not even needed in formulation below
-            for agent in self.agents.values():
+        calc_gini = False
+        for agent in self.agents.values():
+            if agent.intrinsic_rew_type == "gini":
+                calc_gini = True
+                break
+
+        if calc_gini:
+            n_agents = len(smoothed_rew_list)
+            sum_abs_diff = 0
+            for i in range(n_agents):
+                for j in range(n_agents):
+                    sum_abs_diff += np.abs(
+                        smoothed_rew_list[i] - smoothed_rew_list[j])
+            if total_rew_sum == 0:
+                gini_coeff = 1.0 # stuff like division by 0, and even 0/0 call it 1 to incentivize not doing nothing.
+            else:
+                gini_coeff = sum_abs_diff / (
+                    2 * n_agents * total_rew_sum)
+            if (gini_coeff < 0) or (gini_coeff > 1):
+                gini_coeff = 1.0  # Avoid weird negatives or really wacky high values
+                # btw this being scaled between 0 and 1 works nicely given our environment which has temporal rewards 1 for harvesting.
+                # Then 1 should be a decent default weight. Maybe even > 1 to reduce incentive to collect, increase incentive to care about ineq.
+
+        for agent in self.agents.values():
+            if agent.intrinsic_rew_type is not None:
                 extrinsic_self_rew = old_rewards[agent.agent_id]
                 self_rew = agent.smoothed_extrinsic_reward
                 others_rew_sum = total_rew_sum - self_rew
+                # num_others = n_agents - 1
                 num_others = len(smoothed_rew_list) - 1
                 others_rew_avg = others_rew_sum / num_others
 
                 # Social Diversity paper SVO algo
-                # eps = 1e-5
-                # if self_rew == 0:
-                #     theta_r = np.arctan(others_rew_avg / (self_rew + eps))
-                # else:
-                #     theta_r = np.arctan(others_rew_avg / self_rew)
-                # # assuming homogeneous altruistic agents for now
-                # theta_svo = np.pi / 2 # hardcoded 90 degrees for now
-                # weight_svo = 0.2 # from paper, later TODO pass as arg
-                # reg = weight_svo * (np.abs(theta_svo - theta_r))
-                # intrins_rew = extrinsic_self_rew - reg
+                if agent.intrinsic_rew_type == "svo":
+                    eps = 1e-5
+                    if self_rew == 0:
+                        theta_r = np.arctan(others_rew_avg / (self_rew + eps))
+                    else:
+                        theta_r = np.arctan(others_rew_avg / self_rew)
+                    # assuming homogeneous altruistic agents for now
+                    theta_svo_degrees = agent.svo_angle
+                    theta_svo = math.radians(theta_svo_degrees)
+                    # theta_svo = np.pi / 2 # hardcoded 90 degrees for now
+                    weight_svo = agent.svo_weight # 0.2 from paper
+                    reg = weight_svo * (np.abs(theta_svo - theta_r))
+                    intrins_rew = extrinsic_self_rew - reg
 
                 # Inequity aversion
-                alpha = 0.0 # 5.0 # 0.0 # disadvantageous aversion
-                beta = 0.05  # 0.05 # advantageous aversion
-                smoothed_rew_arr = np.array(smoothed_rew_list)
-                # vengeance
-                neg_discrepancies = smoothed_rew_arr - self_rew # other reward - self rew # note agent's discrepancy with self is 0
-                neg_discrepancies = np.maximum(neg_discrepancies, 0)
-                # guilt
-                pos_discrepancies = self_rew - smoothed_rew_arr
-                pos_discrepancies = np.maximum(pos_discrepancies, 0)
+                elif agent.intrinsic_rew_type == "ineq":
+                    alpha = agent.ineq_alpha # 5.0 # 0.0 # disadvantageous aversion
+                    beta = agent.ineq_beta  # 0.05 # advantageous aversion
+                    smoothed_rew_arr = np.array(smoothed_rew_list)
+                    # vengeance
+                    neg_discrepancies = smoothed_rew_arr - self_rew # other reward - self rew # note agent's discrepancy with self is 0
+                    neg_discrepancies = np.maximum(neg_discrepancies, 0)
+                    # guilt
+                    pos_discrepancies = self_rew - smoothed_rew_arr
+                    pos_discrepancies = np.maximum(pos_discrepancies, 0)
 
-                intrins_rew = extrinsic_self_rew - alpha / num_others * np.sum(neg_discrepancies) \
-                              - beta / num_others * np.sum(pos_discrepancies)
+                    intrins_rew = extrinsic_self_rew - alpha / num_others * np.sum(neg_discrepancies) \
+                                  - beta / num_others * np.sum(pos_discrepancies)
 
                 # simple weighting
-                # w_a = 1.0
-                # w_b = 0.2
-                # avg_smooth_rew = total_rew_sum / len(smoothed_rew_list)
-                # intrins_rew = w_a * extrinsic_self_rew + w_b * avg_smooth_rew
+                elif agent.intrinsic_rew_type == "altruism":
+                    w_self = agent.w_self # 1.0
+                    w_others = agent.w_others # 0.2
+                    avg_smooth_rew = total_rew_sum / len(smoothed_rew_list)
+                    intrins_rew = w_self * extrinsic_self_rew + w_others * avg_smooth_rew
+
+                elif agent.intrinsic_rew_type == "gini":
+                    intrins_rew = extrinsic_self_rew - agent.gini_weight * gini_coeff
+
+                elif agent.intrinsic_rew_type == "vengeance":
+                    intrins_rew = extrinsic_self_rew
+
+                    # import sys
+                    # print("AGENT ACTION")
+                    # print(agent_actions[agent.agent_id])
+                    # sys.stdout.flush()
+
+                    if agent_actions[agent.agent_id] == 'FIRE':
+                        # print("AGENT FIRED")
+                        # sys.stdout.flush()
+                        # print(agent.agents_hit)
+                        # sys.stdout.flush()
+                        for agent_id in agent.agents_hit:
+                            for other_agent in self.agents.values():
+                                # print("POSITIONS COMPARISON")
+                                # print(old_positions[other_agent.agent_id])
+                                # print(update)
+                                # sys.stdout.flush()
+                                if other_agent.agent_id == agent.agent_id:
+                                    continue # skip self
+                                # elif (old_positions[other_agent.agent_id][0] == update[0]) and (old_positions[other_agent.agent_id][1] == update[1]):
+                                elif agent_id == other_agent.agent_id:
+                                    # agent has been hit
+                                    if other_agent.last_smoothed_extrinsic_reward - agent.last_smoothed_extrinsic_reward > agent.vengeance_threshold: # if other agent in excess of reward diff barrier
+                                        intrins_rew += agent.vengeance_rew # get modification (intrinsic satisfaction) if hitting agent which exceeds threshold
+
+
+                intrins_rew *= agent.rew_scale
 
                 # update the reward dict
                 rewards[agent.agent_id] = intrins_rew
@@ -298,9 +370,14 @@ class MapEnv(MultiAgentEnv):
             #                               agent.row_size, agent.col_size)
             rgb_arr = self.map_to_colors(agent.get_state(), self.color_map)
             # observations[agent.agent_id] = rgb_arr
+            # if agent.intrinsic_rew_type is not None:
             observations[agent.agent_id] = (rgb_arr, np.zeros(n_agents))
+            # else:
+            #     observations[agent.agent_id] = rgb_arr
             agent.extrinsic_reward_sum = 0
             agent.smoothed_extrinsic_reward = 0
+            agent.last_smoothed_extrinsic_reward = 0
+
 
         # print("RESET OBS")
         # print(observations)
@@ -625,7 +702,7 @@ class MapEnv(MultiAgentEnv):
         self.custom_reset()
 
     def update_map_fire(self, firing_pos, firing_orientation, fire_len, fire_char, cell_types=[],
-                        update_char=[], blocking_cells='P'):
+                        update_char=[], blocking_cells='P', return_agents_hit=True):
         """From a firing position, fire a beam that may clean or hit agents
 
         Notes:
@@ -670,6 +747,7 @@ class MapEnv(MultiAgentEnv):
                       start_pos - right_shift - firing_direction]
         firing_points = []
         updates = []
+        agents_hit = []
         for pos in firing_pos:
             next_cell = pos + firing_direction
             for i in range(fire_len):
@@ -682,6 +760,7 @@ class MapEnv(MultiAgentEnv):
                     if [next_cell[0], next_cell[1]] in self.agent_pos:
                         agent_id = agent_by_pos[(next_cell[0], next_cell[1])]
                         self.agents[agent_id].hit(fire_char)
+                        agents_hit.append(agent_id)
                         firing_points.append((next_cell[0], next_cell[1], fire_char))
                         if self.world_map[next_cell[0], next_cell[1]] in cell_types:
                             type_index = cell_types.index(self.world_map[next_cell[0],
@@ -707,6 +786,8 @@ class MapEnv(MultiAgentEnv):
                     break
 
         self.beam_pos += firing_points
+        if return_agents_hit:
+            return updates, agents_hit
         return updates
 
     def spawn_point(self):

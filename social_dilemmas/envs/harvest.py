@@ -1,7 +1,7 @@
 import numpy as np
 
 from social_dilemmas.envs.agent import HarvestAgent  # HARVEST_VIEW_SIZE
-from social_dilemmas.constants import HARVEST_MAP
+from social_dilemmas.constants import HARVEST_MAP, HARVEST_MAP_BIG, HARVEST_MAP_TINY
 from social_dilemmas.envs.map_env import MapEnv, ACTIONS
 
 APPLE_RADIUS = 2
@@ -14,8 +14,12 @@ SPAWN_PROB = [0, 0.005, 0.02, 0.05]
 
 class HarvestEnv(MapEnv):
 
-    def __init__(self, ascii_map=HARVEST_MAP, num_agents=1, render=False):
-        super().__init__(ascii_map, num_agents, render)
+    def __init__(self, ascii_map=HARVEST_MAP, num_agents=1, render=False, ir_param_list=None,
+                         hit_penalty=50, fire_cost=1):
+        super().__init__(ascii_map, num_agents, render, ir_param_list=ir_param_list,
+                         hit_penalty=hit_penalty, fire_cost=fire_cost)
+        # self.hit_penalty = hit_penalty
+        # self.fire_cost = fire_cost
         self.apple_points = []
         for row in range(self.base_map.shape[0]):
             for col in range(self.base_map.shape[1]):
@@ -40,7 +44,50 @@ class HarvestEnv(MapEnv):
             spawn_point = self.spawn_point()
             rotation = self.spawn_rotation()
             grid = map_with_agents
-            agent = HarvestAgent(agent_id, spawn_point, rotation, grid, self.num_agents)
+            agent_params = self.ir_param_list[i]
+            if agent_params is None:
+                agent = HarvestAgent(agent_id, spawn_point, rotation, grid, self.num_agents,
+                                     hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
+            elif agent_params[0].lower() == "ineq":
+                agent = HarvestAgent(agent_id, spawn_point, rotation, grid,
+                                     self.num_agents,
+                                     intrinsic_rew_type="ineq",
+                                     ineq_alpha=agent_params[1],
+                                     ineq_beta=agent_params[2],
+                                     rew_scale=agent_params[3],
+                                     hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
+            elif agent_params[0].lower() == "altruism":
+                agent = HarvestAgent(agent_id, spawn_point, rotation, grid,
+                                     self.num_agents,
+                                     intrinsic_rew_type="altruism",
+                                     w_self=agent_params[1],
+                                     w_others=agent_params[2],
+                                     rew_scale=agent_params[3],
+                                     hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
+            elif agent_params[0].lower() == "svo":
+                agent = HarvestAgent(agent_id, spawn_point, rotation, grid,
+                                     self.num_agents,
+                                     intrinsic_rew_type="svo",
+                                     svo_angle=agent_params[1],
+                                     svo_weight=agent_params[2],
+                                     rew_scale=agent_params[3],
+                                     hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
+            elif agent_params[0].lower() == "gini":
+                agent = HarvestAgent(agent_id, spawn_point, rotation, grid,
+                                     self.num_agents,
+                                     intrinsic_rew_type="gini",
+                                     gini_weight=agent_params[1],
+                                     # svo_weight=agent_params[2],
+                                     rew_scale=agent_params[2],
+                                     hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
+            elif agent_params[0].lower() == "vengeance":
+                agent = HarvestAgent(agent_id, spawn_point, rotation, grid,
+                                     self.num_agents,
+                                     intrinsic_rew_type="vengeance",
+                                     vengeance_threshold=agent_params[1],
+                                     vengeance_rew=agent_params[2],
+                                     rew_scale=agent_params[3],
+                                     hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
             # agent = HarvestAgent(agent_id, spawn_point, rotation, grid)
 
             # grid = util.return_view(map_with_agents, spawn_point,
@@ -55,9 +102,11 @@ class HarvestEnv(MapEnv):
 
     def custom_action(self, agent, action):
         agent.fire_beam('F')
-        updates = self.update_map_fire(agent.get_pos().tolist(),
+        updates, agents_hit = self.update_map_fire(agent.get_pos().tolist(),
                                        agent.get_orientation(),
                                        ACTIONS['FIRE'], fire_char='F')
+
+        agent.agents_hit = agents_hit
         return updates
 
     def custom_map_update(self):

@@ -9,9 +9,13 @@ from ray.tune.registry import register_env
 # import tensorflow as tf
 import collections
 
+import ast
+
 import argparse
 
 from social_dilemmas.envs.harvest import HarvestEnv
+from social_dilemmas.constants import HARVEST_MAP, HARVEST_MAP_BIG, \
+    HARVEST_MAP_TINY, HARVEST_MAP_TOY, CLEANUP_MAP, CLEANUP_MAP_SMALL
 from social_dilemmas.envs.cleanup import CleanupEnv
 from models.conv_to_fc_net import ConvToFCNet
 
@@ -56,18 +60,25 @@ def print_episode_stats(n_agents, episode_rewards):
     print("Avg Reward: {}".format(average(episode_rewards)))
     print("Min Reward: {}".format(min(episode_rewards)))
     print("Max Reward: {}".format(max(episode_rewards)))
+    sys.stdout.flush()
+
     # Gini coefficient calc
-    sum_abs_diff = 0
-    for i in range(n_agents):
-        for j in range(n_agents):
-            sum_abs_diff += np.abs(episode_rewards[i] - episode_rewards[j])
-    gini_coeff = sum_abs_diff / (2 * n_agents * sum(episode_rewards))
-    print("Gini Coefficient: {}".format(gini_coeff))
+    if sum(episode_rewards) == 0:
+        print("Gini Coefficient: Undefined")
+    else:
+        sum_abs_diff = 0
+        for i in range(n_agents):
+            for j in range(n_agents):
+                sum_abs_diff += np.abs(episode_rewards[i] - episode_rewards[j])
+        gini_coeff = sum_abs_diff / (2 * n_agents * sum(episode_rewards))
+        print("Gini Coefficient: {}".format(gini_coeff))
     # 20:20 ratio calc
     n_20 = max(1, int(np.round(n_agents / 5, 0)))
     sorted_rews = sorted(episode_rewards)
     min_20 = sum(sorted_rews[:n_20])
     max_20 = sum(sorted_rews[n_agents - n_20:])
+    sys.stdout.flush()
+
     if min_20 == 0:
         print("20:20 Ratio: Undefined")
     else:
@@ -97,6 +108,8 @@ def on_episode_end(info):
 
     # print_episode_stats(n_agents, episode_rewards)
 
+    sys.stdout.flush()
+
     print("Extrinsic Rewards:")
     # print(info["env"].envs)
     # print(info["env"].envs[0])
@@ -110,6 +123,22 @@ def on_episode_end(info):
 
     print_episode_stats(n_agents, extrinsic_rewards)
 
+    sys.stdout.flush()
+
+    print("Times Fired")
+    for agent in info["env"].envs[0].agents.values():
+        print(agent.fires)
+
+    sys.stdout.flush()
+
+
+    print("Times Hit")
+    for agent in info["env"].envs[0].agents.values():
+        print(agent.times_hit)
+
+    # print("Times Clean")
+    # for agent in info["env"].envs[0].agents.values():
+    #     print(agent.cleans)
 
     # Use custom metrics if still not working
     # or consider
@@ -123,40 +152,61 @@ def on_episode_end(info):
     sys.stdout.flush()
 
 
-
-
 def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
           num_agents, use_gpus_for_workers=False, use_gpu_for_driver=False,
-          num_workers_per_device=1):
+          num_workers_per_device=1, num_envs_per_worker=1,
+          # remote_worker_envs=False,
+          intrinsic_rew_params=None, impala_replay=False, harvest_map='regular',
+          cleanup_map='regular', hit_penalty=50, fire_cost=1):
+
+    if intrinsic_rew_params is None:
+        ir_param_list = [None] * num_agents
+
+    else:
+        ir_param_list = intrinsic_rew_params.split(';')
+        ir_param_list = list(map(ast.literal_eval, ir_param_list))
+        assert len(ir_param_list) == num_agents
 
     if env == 'harvest':
         def env_creator(_):
-            return HarvestEnv(num_agents=num_agents)
-        single_env = HarvestEnv()
+            ascii_map = HARVEST_MAP
+            if harvest_map == 'tiny':
+                ascii_map = HARVEST_MAP_TINY
+            elif harvest_map == 'toy':
+                ascii_map = HARVEST_MAP_TOY
+            elif harvest_map == 'big':
+                ascii_map = HARVEST_MAP_BIG
+            return HarvestEnv(ascii_map=ascii_map, num_agents=num_agents, ir_param_list=ir_param_list,
+                              hit_penalty=hit_penalty, fire_cost=fire_cost)
+        # single_env = HarvestEnv()
     else:
         def env_creator(_):
-            return CleanupEnv(num_agents=num_agents)
-        single_env = CleanupEnv()
+            ascii_map = CLEANUP_MAP
+            if cleanup_map == 'small':
+                ascii_map = CLEANUP_MAP_SMALL
+            return CleanupEnv(ascii_map=ascii_map, num_agents=num_agents, ir_param_list=ir_param_list,
+                              hit_penalty=hit_penalty, fire_cost=fire_cost)
+        # single_env = CleanupEnv()
 
     env_name = env + "_env"
     register_env(env_name, env_creator)
 
-    obs_space = single_env.observation_space
-    act_space = single_env.action_space
-
-    # Each policy can have a different configuration (including custom model)
-    def gen_policy():
-        # return (PPOPolicyGraph, obs_space, act_space, {})
-        # return (A3CPolicyGraph, obs_space, act_space, {})
-        return (None, obs_space, act_space, {}) # should be default now
-
-    # Setup PPO with an ensemble of `num_policies` different policy graphs
-    policy_graphs = {}
-    for i in range(num_agents):
-        policy_graphs['agent-' + str(i)] = gen_policy()
-
-    def policy_mapping_fn(agent_id):
-        return agent_id
+    # obs_space = single_env.observation_space
+    # act_space = single_env.action_space
+    #
+    # # Each policy can have a different configuration (including custom model)
+    # def gen_policy():
+    #     # return (PPOPolicyGraph, obs_space, act_space, {})
+    #     # return (A3CPolicyGraph, obs_space, act_space, {})
+    #     return (None, obs_space, act_space, {}) # should be default now
+    #
+    # # Setup PPO with an ensemble of `num_policies` different policy graphs
+    # policy_graphs = {}
+    # for i in range(num_agents):
+    #     policy_graphs['agent-' + str(i)] = gen_policy()
+    #
+    # def policy_mapping_fn(agent_id):
+    #     return agent_id
 
     # register the custom model
     model_name = "conv_to_fc_net"
@@ -193,6 +243,8 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
                 "num_cpus_for_driver": cpus_for_driver,
                 "num_gpus_per_worker": num_gpus_per_worker,   # Can be a fraction
                 "num_cpus_per_worker": num_cpus_per_worker,   # Can be a fraction
+                "num_envs_per_worker": num_envs_per_worker,
+                # "remote_worker_envs": remote_worker_envs,
                 "callbacks": {
                     "on_episode_start": tune.function(on_episode_start),
                     "on_episode_end": tune.function(on_episode_end),
@@ -206,12 +258,16 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
 
     })
 
-    if algorithm in ["A2C", "A3C"]:
+    if algorithm in ["A2C", "A3C", "IMPALA"]:
         config.update({"lr_schedule":
                 [[0, hparams['lr_init']],
                     [20000000, hparams['lr_final']]],
                        "entropy_coeff": hparams['entropy_coeff']
                        })
+
+    if algorithm in ["IMPALA"] and impala_replay:
+        config.update({"replay_proportion": 0.5, "replay_buffer_num_slots": 10000})
+
 
 
     return algorithm, env_name, config
@@ -229,7 +285,15 @@ def main(args):
                                       args.num_gpus, args.num_agents,
                                       args.use_gpus_for_workers,
                                       args.use_gpu_for_driver,
-                                      args.num_workers_per_device)
+                                      args.num_workers_per_device,
+                                      args.num_envs_per_worker,
+                                      # args.remote_worker_envs,
+                                      args.intrinsic_rew_params,
+                                      args.impala_replay,
+                                      args.harvest_map,
+                                      args.cleanup_map,
+                                      args.hit_penalty,
+                                      args.fire_cost)
 
     if args.exp_name is None:
         exp_name = args.env + '_' + args.algorithm
@@ -238,6 +302,9 @@ def main(args):
     print('Commencing experiment', exp_name)
 
     print(config)
+
+    print("INTRINS REW PARAMS")
+    print(args.intrinsic_rew_params)
     import sys
     sys.stdout.flush()
 
@@ -268,6 +335,23 @@ if __name__ == "__main__":
     parser.add_argument("--use_gpus_for_workers", action="store_true", help="Set to true to run workers on GPUs rather than CPUs")
     parser.add_argument("--use_gpu_for_driver", action="store_true", help="Set to true to run driver on GPU rather than CPU.")
     parser.add_argument("--num_workers_per_device", type=int, default="2", help="Number of workers to place on a single device (CPU or GPU)")
+    parser.add_argument("--num_envs_per_worker", type=int, default="1", help="For vectorized environment")
+    # parser.add_argument("--remote_worker_envs", action="store_true", help="Ray's remote worker envs flag")
+
+    # parser.add_argument("--intrinsic_rew_type", type=str, choices=['svo', 'ineq', 'altruism'], default=None,  help="Run agents with intrinsic reward modifications")
+    parser.add_argument("--intrinsic_rew_params", type=str, default=None, help="Parameters for agents' intrinsic reward. Format: (rew_type, params) for each agent, semicolon delimited")
+    # Example intrinsic reward params --intrinsic_rew_params "('ineq',5.0,0.05,0.01);('altruism',1.0,0.2,0.01);('svo',90,0.2,0.01);None;None"
+    # Ineq aversion is alpha, beta
+    # Altruism is w_self, w_others
+    # SVO is angle (degrees), weight
+    # THird param is intrinsic reward scaling (Effectively changing the learning rate)
+    parser.add_argument("--harvest_map", type=str, default='regular', choices=['regular', 'tiny', 'big', 'toy'])
+    parser.add_argument("--cleanup_map", type=str, default='regular', choices=['regular', 'small'])
+    # parser.add_argument("--resume", action="store_true", help="Set to resume an experiment")
+    parser.add_argument("--hit_penalty", type=int, default=50, help="Cost of being hit by a punishment beam")
+    parser.add_argument("--fire_cost", type=int, default=1, help="Cost of firing a punishment beam")
+    parser.add_argument("--impala_replay", action="store_true", help="Use IMPALA Replay Buffer")
+
 
     args = parser.parse_args()
 

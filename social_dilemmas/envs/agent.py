@@ -17,7 +17,10 @@ BASE_ACTIONS = {0: 'MOVE_LEFT',  # Move left
 
 class Agent(object):
 
-    def __init__(self, agent_id, start_pos, start_orientation, grid, row_size, col_size):
+    def __init__(self, agent_id, start_pos, start_orientation, grid, row_size, col_size,
+                 intrinsic_rew_type=None, ineq_alpha=None, ineq_beta=None, w_self=None, w_others=None,
+                 svo_angle=None, svo_weight=None, gini_weight=None,
+                 vengeance_threshold=None, vengeance_rew=None, rew_scale=1.0):
         """Superclass for all agents.
 
         Parameters
@@ -35,9 +38,24 @@ class Agent(object):
         col_size: (int)
             how many columns left and right the agent can look
         """
+        self.ineq_alpha = ineq_alpha
+        self.ineq_beta = ineq_beta
+        self.w_self = w_self
+        self.w_others = w_others
+        self.svo_angle = svo_angle
+        self.svo_weight = svo_weight
+        self.gini_weight = gini_weight
+        self.vengeance_threshold = vengeance_threshold
+        self.vengeance_rew = vengeance_rew
+        self.rew_scale = rew_scale # Scaling for turning down effective learning rate on intrinsic reward. A multiplicative factor (so 0.01 to reduce learning by factor of 100)
+
+        self.times_hit = 0
+        self.fires = 0
+
         self.agent_id = agent_id
         self.pos = np.array(start_pos)
         self.orientation = start_orientation
+        self.intrinsic_rew_type = intrinsic_rew_type
         # TODO(ev) change grid to env, this name is not very informative
         self.grid = grid
         self.row_size = row_size
@@ -155,12 +173,21 @@ HARVEST_VIEW_SIZE = 7
 
 class HarvestAgent(Agent):
 
-    def __init__(self, agent_id, start_pos, start_orientation, grid, num_agents, view_len=HARVEST_VIEW_SIZE):
+    def __init__(self, agent_id, start_pos, start_orientation, grid, num_agents,
+                 view_len=HARVEST_VIEW_SIZE, intrinsic_rew_type=None,
+                 ineq_alpha=None, ineq_beta=None, w_self=None, w_others=None,
+                 svo_angle=None, svo_weight=None, gini_weight=None, vengeance_threshold=None,
+                 vengeance_rew=None, rew_scale=1.0, hit_penalty=50, fire_cost=1):
+        self.hit_penalty = hit_penalty
+        self.fire_cost = fire_cost
         self.view_len = view_len
         self.num_agents = num_agents
-        super().__init__(agent_id, start_pos, start_orientation, grid, view_len, view_len)
+        super().__init__(agent_id, start_pos, start_orientation, grid, view_len, view_len,
+                         intrinsic_rew_type, ineq_alpha, ineq_beta, w_self, w_others,
+                         svo_angle, svo_weight, gini_weight, vengeance_threshold, vengeance_rew, rew_scale)
         self.update_agent_pos(start_pos)
         self.update_agent_rot(start_orientation)
+        self.agents_hit = None
 
     @property
     def action_space(self):
@@ -176,6 +203,9 @@ class HarvestAgent(Agent):
     def observation_space(self):
         map_obs = Box(low=0.0, high=0.0, shape=(2 * self.view_len + 1,
                                              2 * self.view_len + 1, 3), dtype=np.float32)
+        # if self.intrinsic_rew_type is None:
+        #     return map_obs
+        # else:
         rew_obs = Box(low=0.0, high=0.0, shape=(self.num_agents,), dtype=np.float32)
         return Tuple([map_obs, rew_obs])
     # def observation_space(self):
@@ -184,11 +214,13 @@ class HarvestAgent(Agent):
 
     def hit(self, char):
         if char == 'F':
-            self.reward_this_turn -= 50
+            self.reward_this_turn -= self.hit_penalty
+            self.times_hit += 1
 
     def fire_beam(self, char):
         if char == 'F':
-            self.reward_this_turn -= 1
+            self.reward_this_turn -= self.fire_cost
+            self.fires += 1
 
     def get_done(self):
         return False
@@ -210,10 +242,20 @@ CLEANUP_VIEW_SIZE = 7
 
 
 class CleanupAgent(Agent):
-    def __init__(self, agent_id, start_pos, start_orientation, grid, num_agents, view_len=CLEANUP_VIEW_SIZE):
+    def __init__(self, agent_id, start_pos, start_orientation, grid, num_agents,
+                 view_len=CLEANUP_VIEW_SIZE, intrinsic_rew_type=None,
+                 ineq_alpha=None, ineq_beta=None, w_self=None, w_others=None,
+                 svo_angle=None, svo_weight=None, gini_weight=None, vengeance_threshold=None,
+                 vengeance_rew=None, rew_scale=1.0, hit_penalty=50, fire_cost=1):
+
+        self.hit_penalty = hit_penalty
+        self.fire_cost = fire_cost
         self.view_len = view_len
         self.num_agents = num_agents
-        super().__init__(agent_id, start_pos, start_orientation, grid, view_len, view_len)
+        self.cleans = 0
+        super().__init__(agent_id, start_pos, start_orientation, grid, view_len,
+                         view_len, intrinsic_rew_type, ineq_alpha, ineq_beta, w_self, w_others,
+                         svo_angle, svo_weight, gini_weight, vengeance_rew, vengeance_threshold, rew_scale)
         # remember what you've stepped on
         self.update_agent_pos(start_pos)
         self.update_agent_rot(start_orientation)
@@ -225,8 +267,13 @@ class CleanupAgent(Agent):
     @property
     def observation_space(self):
         map_obs = Box(low=0.0, high=0.0, shape=(2 * self.view_len + 1,
-                                             2 * self.view_len + 1, 3), dtype=np.float32)
-        rew_obs = Box(low=0.0, high=0.0, shape=(self.num_agents,), dtype=np.float32)
+                                                2 * self.view_len + 1, 3),
+                      dtype=np.float32)
+        # if self.intrinsic_rew_type is None:
+        #     return map_obs
+        # else:
+        rew_obs = Box(low=0.0, high=0.0, shape=(self.num_agents,),
+                      dtype=np.float32)
         return Tuple([map_obs, rew_obs])
         # return Box(low=0.0, high=0.0, shape=(2 * self.view_len + 1,
         #                                      2 * self.view_len + 1, 3), dtype=np.float32)
@@ -239,14 +286,18 @@ class CleanupAgent(Agent):
 
     def fire_beam(self, char):
         if char == 'F':
-            self.reward_this_turn -= 1
+            self.reward_this_turn -= self.fire_cost
+            self.fires += 1
+        if char == 'C':
+            self.cleans += 1
 
     def get_done(self):
         return False
 
     def hit(self, char):
         if char == 'F':
-            self.reward_this_turn -= 50
+            self.reward_this_turn -= self.hit_penalty
+            self.times_hit += 1
 
     def consume(self, char):
         """Defines how an agent interacts with the char it is standing on"""
