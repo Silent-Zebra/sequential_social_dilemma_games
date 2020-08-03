@@ -51,6 +51,20 @@ HARVEST_MAP_TOY = [
     '@ P P @',
     '@@@@@@@']
 
+# single agent env from A multi-agent reinforcement learning model of
+# common-pool resource appropriation
+HARVEST_MAP_CPR = [
+    '@@@@@@@@@@@@@@@@@@@@@@',
+    '@  A   A   A   A   A @',
+    '@ AAA AAA AAA AAA AAA@',
+    '@  A   A   A   A   A @',
+    '@                    @',
+    '@    A   A   A   A   @',
+    '@   AAA AAA AAA AAA  @',
+    '@    A   A   A   A  P@',
+    '@@@@@@@@@@@@@@@@@@@@@@',]
+
+
 # Default
 HARVEST_MAP = [
     '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',
