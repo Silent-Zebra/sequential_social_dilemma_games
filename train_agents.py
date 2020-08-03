@@ -200,8 +200,8 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
     # Each policy can have a different configuration (including custom model)
     def gen_policy():
         # return (PPOPolicyGraph, obs_space, act_space, {})
-        # return (A3CPolicyGraph, obs_space, act_space, {})
-        return (None, obs_space, act_space, {}) # should be default now
+        return (A3CPolicyGraph, obs_space, act_space, {})
+        # return (None, obs_space, act_space, {}) # should be default now
 
     # Setup algorithm with an ensemble of `num_policies` different policy graphs
     policy_graphs = {}
