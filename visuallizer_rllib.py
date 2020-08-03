@@ -186,8 +186,8 @@ def create_parser():
 
     # required input parameters
     parser.add_argument(
-        'result_dir', type=str, help='Directory containing results')
-    parser.add_argument('checkpoint_num', type=str, help='Checkpoint number.')
+        '--result_dir', type=str, help='Directory containing results')
+    parser.add_argument('--checkpoint_num', type=str, help='Checkpoint number.')
 
     # optional input parameters
     parser.add_argument(
