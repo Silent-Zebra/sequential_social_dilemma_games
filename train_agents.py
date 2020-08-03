@@ -3,6 +3,8 @@ from ray import tune
 from ray.rllib.agents.registry import get_agent_class
 from ray.rllib.agents.ppo.ppo_policy_graph import PPOPolicyGraph
 from ray.rllib.agents.a3c.a3c_tf_policy_graph import A3CPolicyGraph
+from ray.rllib.agents.dqn.dqn_policy_graph import DQNPolicyGraph
+
 from ray.rllib.models import ModelCatalog
 from ray.tune import run_experiments
 from ray.tune.registry import register_env
@@ -201,8 +203,12 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
 
     # Each policy can have a different configuration (including custom model)
     def gen_policy():
+        if algorithm == "DQN":
+            p_graph = DQNPolicyGraph
+        else:
+            p_graph = A3CPolicyGraph
         # return (PPOPolicyGraph, obs_space, act_space, {})
-        return (A3CPolicyGraph, obs_space, act_space, {})
+        return (p_graph, obs_space, act_space, {})
         # return (None, obs_space, act_space, {}) # should be default now
 
     # Setup algorithm with an ensemble of `num_policies` different policy graphs
