@@ -11,6 +11,10 @@ import shutil
 from social_dilemmas.envs.cleanup import CleanupEnv
 from social_dilemmas.envs.harvest import HarvestEnv
 
+from social_dilemmas.constants import HARVEST_MAP, HARVEST_MAP_BIG, \
+    HARVEST_MAP_TINY, HARVEST_MAP_TOY, HARVEST_MAP_CPR, \
+    CLEANUP_MAP, CLEANUP_MAP_SMALL
+
 from DQN import DQNAgent, NeuralNet, ConvFC
 
 
@@ -40,11 +44,11 @@ def reshape_obs_for_convfc(obs_agent_i):
 
 class Controller(object):
 
-    def __init__(self, env_name='harvest', num_agents=5):
+    def __init__(self, env_name='harvest', num_agents=1):
         self.env_name = env_name
         if env_name == 'harvest':
             print('Initializing Harvest environment')
-            self.env = HarvestEnv(num_agents=num_agents, render=True)
+            self.env = HarvestEnv(ascii_map=HARVEST_MAP_CPR, num_agents=num_agents, render=True)
         elif env_name == 'cleanup':
             print('Initializing Cleanup environment')
             self.env = CleanupEnv(num_agents=num_agents, render=True)
@@ -74,9 +78,9 @@ class Controller(object):
         # print(i)
         agent_i = "agent-{}".format(i)
         self.agent_policies[i].push_experience(
-            reshape_obs_for_convfc(obs[agent_i]),
+            reshape_obs_for_convfc(obs[agent_i][0]),
             action_dict[agent_i],
-            rew[agent_i], reshape_obs_for_convfc(next_obs[agent_i]),
+            rew[agent_i], reshape_obs_for_convfc(next_obs[agent_i][0]), # we here using without the reward info... can modify later but this is just a test
             dones[agent_i])
 
         if train_agents:
@@ -108,20 +112,86 @@ class Controller(object):
         obs = init_obs
 
         for time_step in range(horizon):
+            # print(time_step )
             action_dim = self.action_dim
-            # TODO do the DQN agent training loop now (again borrow from IPD env - should be quick and easy)
-            # rand actions for all agents right now. Replace this with a train loop
-            # I can use my DQN as a starting point. Later can integrate with all their stuff.
-            # Start small and simple.
-            # Start with just 1 past frame. Then can make it 3 or 4 past frames after
-            # And then eventually use a RNN/LSTM set instead.
+
+            # Single agent hardcoded for now
+
+            hard_coded=False
+            if hard_coded:
+                action_cycle = 40
+                prep_time = 4 + 2 #10
+                single_obs = obs["agent-{}".format(0)][0]
+                if time_step < prep_time - 2:
+                    # print(single_obs)
+                    # print(single_obs.shape)
+                    # print(single_obs[7][7])
+                    #
+                    # print(single_obs[7][6])
+                    # print(single_obs[6][7])
+                    # print(single_obs[7][8])
+                    # print(single_obs[8][7])
+                    # if single_obs[8][7].sum() == 540 and single_obs[7][6].sum() == 540: # 200
+                    if single_obs[6][7].sum() == 540 and single_obs[7][8].sum() == 540: # 200
+                    # if single_obs[6][7].sum() == 540 and single_obs[7][6].sum() == 540: # 100
+                    # if single_obs[8][7].sum() == 540 and single_obs[7][8].sum() == 540: # 100
+                        action = 4
+                    # elif single_obs[7][9].sum() == 0 and single_obs[5][7].sum() == 0: # lower and left empty
+                    #     action = 5
+                    else: action = 6 # got lazy, just keep turning otherwise
+                    # action = 5
+                # elif time_step == prep_time - 3:
+                #     # print(single_obs[7][6])
+                #     # print(single_obs[6][7])
+                #     # print(single_obs[7][8])
+                #     # print(single_obs[8][7])
+                #     action=2 # first up movement, start the cycle
+                elif time_step == prep_time - 2:
+                    # print(single_obs[7][6])
+                    # print(single_obs[6][7])
+                    # print(single_obs[7][8])
+                    # print(single_obs[8][7])
+                    action= 1 #0 # first left movement, start the cycle # left and right are wrong? Yeah they messed it up
+                    # Um anyway... around 450 is optimal in this env.
+                elif time_step == prep_time - 1:
+                    # print(single_obs[7][6])
+                    # print(single_obs[6][7])
+                    # print(single_obs[7][8])
+                    # print(single_obs[8][7])
+                    action = 2  # up again for smoe reason
+                else:
+                    # if time_step == prep_time:
+                    # print(single_obs[7][6])
+                    # print(single_obs[6][7])
+                    # print(single_obs[7][8])
+                    # print(single_obs[8][7])
+                    # Assumes up orientation
+                    if (time_step-prep_time) % action_cycle < 16:
+                        action = 1 # left
+                    elif (time_step-prep_time)  % action_cycle < 20:
+                        action = 2
+                    elif (time_step-prep_time)  % action_cycle < 36:
+                        action = 0 # right
+                    elif (time_step-prep_time) % action_cycle < 40:
+                        action = 3 # down
+                    # print(action)
+
+                actions = [ action ]
+
+
             action_dict = {}
-            if train_agents:
-                actions = [self.agent_policies[i].act(reshape_obs_for_convfc(obs["agent-{}".format(i)]), print_act=print_act) for i in range(self.num_agents)]
-            else:
-                # can choose eps=0 or something else after
-                actions = [self.agent_policies[i].act(reshape_obs_for_convfc(obs["agent-{}".format(i)]), print_act=print_act) for i in range(self.num_agents)]
-            # print(actions)
+
+            if not hard_coded:
+                actions = []
+                if train_agents:
+                    # for i in range(self.num_agents):
+                    #     print(i)
+                    #     action = self.agent_policies[i].act(reshape_obs_for_convfc(obs["agent-{}".format(i)]), print_act=print_act)
+                    # actions.append(action)
+                    actions = [self.agent_policies[i].act(reshape_obs_for_convfc(obs["agent-{}".format(i)][0]), print_act=print_act) for i in range(self.num_agents)]
+                else:
+                    # can choose eps=0 or something else after
+                    actions = [self.agent_policies[i].act(reshape_obs_for_convfc(obs["agent-{}".format(i)][0]), print_act=print_act) for i in range(self.num_agents)]
 
             for i in range(self.num_agents):
                 agent_i = "agent-{}".format(i)
@@ -133,22 +203,16 @@ class Controller(object):
                 #     action_dict[agent_i] = self.agent_policies[i].act.remote(reshape_obs_for_convfc(obs[agent_i]), epsilon=0)
                 #     # 1, obs[agent_i].shape[2], obs[agent_i].shape[0], obs[agent_i].shape[1] )) # batch size = 1 for 1 obs right now...
 
-            # print(action_dict)
-            # rand_action = np.random.randint(action_dim, size=self.num_agents)
-            # obs, rew, dones, info, = self.env.step({'agent-0': rand_action[0],
-            #                                         'agent-1': rand_action[1],
-            #                                         'agent-2': rand_action[2],
-            #                                         'agent-3': rand_action[3],
-            #                                         'agent-4': rand_action[4]})
 
             next_obs, rew, dones, info, = self.env.step(action_dict)
 
-            if train_agents:
-                for i in range(self.num_agents):
-                    if ((time_step + 1) % train_every == 0):
-                        self.process_experiences(0, i, obs, action_dict, rew, next_obs, dones, train_agents=True)
-                    else:
-                        self.process_experiences(0, i, obs, action_dict, rew, next_obs, dones, train_agents=False)
+            if not hard_coded:
+                if train_agents:
+                    for i in range(self.num_agents):
+                        if ((time_step + 1) % train_every == 0):
+                            self.process_experiences(0, i, obs, action_dict, rew, next_obs, dones, train_agents=True)
+                        else:
+                            self.process_experiences(0, i, obs, action_dict, rew, next_obs, dones, train_agents=False)
 
             obs = next_obs
 
@@ -201,7 +265,7 @@ class Controller(object):
         #     # Clean up images
         #     shutil.rmtree(image_path)
         # else:
-        rewards, observations, full_obs = self.rollout(horizon=horizon, train_agents=False, print_act=True)
+        rewards, observations, full_obs = self.rollout(horizon=horizon, train_agents=False, print_act=False)
         utility_funcs.make_video_from_rgb_imgs(full_obs, path, fps=fps,
                                                video_name=video_name)
         return rewards

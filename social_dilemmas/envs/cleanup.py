@@ -124,7 +124,10 @@ class CleanupEnv(MapEnv):
 
             # agent = CleanupAgent(agent_id, spawn_point, rotation, map_with_agents)
             # agent = CleanupAgent(agent_id, spawn_point, rotation, map_with_agents, self.num_agents)
-            agent_params = self.ir_param_list[i]
+            if self.ir_param_list is None:
+                agent_params=None
+            else:
+                agent_params = self.ir_param_list[i]
             if agent_params is None:
                 agent = CleanupAgent(agent_id, spawn_point, rotation, map_with_agents,
                                      self.num_agents,

@@ -27,7 +27,7 @@ def main(args):
     controller = Controller()
     path = os.path.abspath(os.path.dirname(__file__)) # just saves in current directory right now
 
-    epochs = 500
+    epochs = 200
     horizon_len = 1000
     train_every = 20
     print_every = 1

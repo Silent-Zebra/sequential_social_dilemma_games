@@ -44,7 +44,10 @@ class HarvestEnv(MapEnv):
             spawn_point = self.spawn_point()
             rotation = self.spawn_rotation()
             grid = map_with_agents
-            agent_params = self.ir_param_list[i]
+            if self.ir_param_list is None:
+                agent_params=None
+            else:
+                agent_params = self.ir_param_list[i]
             if agent_params is None:
                 agent = HarvestAgent(agent_id, spawn_point, rotation, grid, self.num_agents,
                                      hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
