@@ -181,7 +181,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
                 ascii_map = HARVEST_MAP_BIG
             return HarvestEnv(ascii_map=ascii_map, num_agents=num_agents, ir_param_list=ir_param_list,
                               hit_penalty=hit_penalty, fire_cost=fire_cost)
-        # single_env = HarvestEnv()
+        single_env = HarvestEnv()
     else:
         def env_creator(_):
             ascii_map = CLEANUP_MAP
@@ -189,27 +189,27 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
                 ascii_map = CLEANUP_MAP_SMALL
             return CleanupEnv(ascii_map=ascii_map, num_agents=num_agents, ir_param_list=ir_param_list,
                               hit_penalty=hit_penalty, fire_cost=fire_cost)
-        # single_env = CleanupEnv()
+        single_env = CleanupEnv()
 
     env_name = env + "_env"
     register_env(env_name, env_creator)
 
-    # obs_space = single_env.observation_space
-    # act_space = single_env.action_space
-    #
-    # # Each policy can have a different configuration (including custom model)
-    # def gen_policy():
-    #     # return (PPOPolicyGraph, obs_space, act_space, {})
-    #     # return (A3CPolicyGraph, obs_space, act_space, {})
-    #     return (None, obs_space, act_space, {}) # should be default now
-    #
-    # # Setup PPO with an ensemble of `num_policies` different policy graphs
-    # policy_graphs = {}
-    # for i in range(num_agents):
-    #     policy_graphs['agent-' + str(i)] = gen_policy()
-    #
-    # def policy_mapping_fn(agent_id):
-    #     return agent_id
+    obs_space = single_env.observation_space
+    act_space = single_env.action_space
+
+    # Each policy can have a different configuration (including custom model)
+    def gen_policy():
+        # return (PPOPolicyGraph, obs_space, act_space, {})
+        # return (A3CPolicyGraph, obs_space, act_space, {})
+        return (None, obs_space, act_space, {}) # should be default now
+
+    # Setup algorithm with an ensemble of `num_policies` different policy graphs
+    policy_graphs = {}
+    for i in range(num_agents):
+        policy_graphs['agent-' + str(i)] = gen_policy()
+
+    def policy_mapping_fn(agent_id):
+        return agent_id
 
     # register the custom model
     model_name = "conv_to_fc_net"
@@ -252,10 +252,10 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
                     "on_episode_start": tune.function(on_episode_start),
                     "on_episode_end": tune.function(on_episode_end),
                 },
-                # "multiagent": {
-                #     "policy_graphs": policy_graphs,
-                #     "policy_mapping_fn": tune.function(policy_mapping_fn),
-                # },
+                "multiagent": {
+                    "policy_graphs": policy_graphs,
+                    "policy_mapping_fn": tune.function(policy_mapping_fn),
+                },
                 "model": {"custom_model": "conv_to_fc_net", "use_lstm": True,
                           "lstm_cell_size": 128}
 
