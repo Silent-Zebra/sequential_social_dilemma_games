@@ -191,7 +191,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
             created_env = CleanupEnv(ascii_map=ascii_map, num_agents=num_agents, ir_param_list=ir_param_list,
                               hit_penalty=hit_penalty, fire_cost=fire_cost)
             return created_env
-        example_env = env_creator()
+    example_env = env_creator()
 
     env_name = env + "_env"
     register_env(env_name, env_creator)
