@@ -174,6 +174,8 @@ def visualizer_rllib(args):
             os.makedirs(images_path)
         utility_funcs.make_video_from_rgb_imgs(full_obs, path)
 
+        print("Video saved at: {}".format(path))
+
         # Clean up images
         shutil.rmtree(images_path)
 
