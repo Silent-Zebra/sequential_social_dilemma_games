@@ -265,11 +265,15 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
                 "multiagent": {
                     "policy_graphs": policy_graphs,
                     "policy_mapping_fn": tune.function(policy_mapping_fn),
-                },
-                "model": {"custom_model": "conv_to_fc_net", "use_lstm": True,
-                          "lstm_cell_size": 128}
+                }
+        # ,
+                # "model": {"custom_model": "conv_to_fc_net", "use_lstm": True,
+                #           "lstm_cell_size": 128}
 
     })
+    if algorithm not in ["DQN"]:
+        config.update({"model": {"custom_model": "conv_to_fc_net", "use_lstm": True,
+                  "lstm_cell_size": 128}})
 
     if algorithm in ["A2C", "A3C", "IMPALA"]:
         config.update({"lr_schedule":
