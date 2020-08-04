@@ -205,6 +205,8 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
     def gen_policy():
         if algorithm == "DQN":
             p_graph = DQNPolicyGraph
+        elif algorithm == "PPO":
+            p_graph = PPOPolicyGraph
         else:
             p_graph = A3CPolicyGraph
         # return (PPOPolicyGraph, obs_space, act_space, {})
