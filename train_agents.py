@@ -20,7 +20,7 @@ from social_dilemmas.constants import HARVEST_MAP, HARVEST_MAP_BIG, \
     HARVEST_MAP_TINY, HARVEST_MAP_TOY, HARVEST_MAP_CPR, \
     CLEANUP_MAP, CLEANUP_MAP_SMALL
 from social_dilemmas.envs.cleanup import CleanupEnv
-from models.conv_to_fc_net import ConvToFCNet
+from models.conv_to_fc_net import ConvToFCNet, ConvToFCNetLarge
 
 import sys
 
@@ -159,7 +159,8 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
           num_agents, use_gpus_for_workers=False, use_gpu_for_driver=False,
           num_workers_per_device=1, num_envs_per_worker=1,
           # remote_worker_envs=False,
-          intrinsic_rew_params=None, impala_replay=False, harvest_map='regular',
+          intrinsic_rew_params=None, impala_replay=False, conv_large=False,
+          harvest_map='regular',
           cleanup_map='regular', hit_penalty=50, fire_cost=1):
 
     if intrinsic_rew_params is None:
@@ -222,8 +223,12 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
         return agent_id
 
     # register the custom model
-    model_name = "conv_to_fc_net"
-    ModelCatalog.register_custom_model(model_name, ConvToFCNet)
+    if conv_large:
+        model_name = "conv_to_fc_net_large"
+        ModelCatalog.register_custom_model(model_name, ConvToFCNetLarge)
+    else:
+        model_name = "conv_to_fc_net"
+        ModelCatalog.register_custom_model(model_name, ConvToFCNet)
 
     agent_cls = get_agent_class(algorithm)
     config = agent_cls._default_config.copy()
@@ -272,7 +277,12 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
 
     })
     if algorithm not in ["DQN"]:
-        config.update({"model": {"custom_model": "conv_to_fc_net", "use_lstm": True,
+        if conv_large:
+            config.update(
+                {"model": {"custom_model": "conv_to_fc_net_large", "use_lstm": True,
+                           "lstm_cell_size": 256}})
+        else:
+            config.update({"model": {"custom_model": "conv_to_fc_net", "use_lstm": True,
                   "lstm_cell_size": 128}})
 
     if algorithm in ["A2C", "A3C", "IMPALA"]:
@@ -307,6 +317,7 @@ def main(args):
                                       # args.remote_worker_envs,
                                       args.intrinsic_rew_params,
                                       args.impala_replay,
+                                      args.conv_large,
                                       args.harvest_map,
                                       args.cleanup_map,
                                       args.hit_penalty,
@@ -368,6 +379,7 @@ if __name__ == "__main__":
     parser.add_argument("--hit_penalty", type=int, default=50, help="Cost of being hit by a punishment beam")
     parser.add_argument("--fire_cost", type=int, default=1, help="Cost of firing a punishment beam")
     parser.add_argument("--impala_replay", action="store_true", help="Use IMPALA Replay Buffer")
+    parser.add_argument("--conv_large", action="store_true", help="Use larger convnet architecture")
 
 
     args = parser.parse_args()

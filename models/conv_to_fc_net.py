@@ -18,6 +18,51 @@ class ConvToFCNet(Model):
 
         inputs = input_dict["obs"]
 
+        smoothed_rews = None
+        if isinstance(inputs, list):
+            smoothed_rews = inputs[1]
+            inputs = inputs[0]
+
+
+        hiddens = [32, 32]
+        with tf.name_scope("custom_net"):
+
+            inputs = slim.conv2d(
+                inputs,
+                6,
+                [3, 3],
+                1,
+                activation_fn=tf.nn.relu,
+                scope="conv")
+            last_layer = flatten(inputs)
+
+            i = 1
+            for size in hiddens:
+                label = "fc{}".format(i)
+                last_layer = slim.fully_connected(
+                    last_layer,
+                    size,
+                    weights_initializer=normc_initializer(1.0),
+                    activation_fn=tf.nn.relu,
+                    scope=label)
+                i += 1
+            output = slim.fully_connected(
+                last_layer,
+                num_outputs,
+                weights_initializer=normc_initializer(0.01),
+                activation_fn=None,
+                scope="fc_out")
+
+            if smoothed_rews is not None:
+                output = tf.concat([output, smoothed_rews], axis=-1)
+
+            return output, last_layer
+
+class ConvToFCNetLarge(Model):
+    def _build_layers_v2(self, input_dict, num_outputs, options):
+
+        inputs = input_dict["obs"]
+
         # print("TYPE-IS")
         # print(type(inputs))
         # print(inputs)
@@ -36,11 +81,11 @@ class ConvToFCNet(Model):
         # print(inputs.shape)
         # sys.stdout.flush()
 
-        hiddens = [32, 32]
+        hiddens = [64, 64]
         with tf.name_scope("custom_net"):
             inputs = slim.conv2d(
                 inputs,
-                6,
+                16,
                 [3, 3],
                 1,
                 activation_fn=tf.nn.relu,
