@@ -16,7 +16,7 @@ from ray.cloudpickle import cloudpickle
 from ray.rllib.evaluation.sample_batch import DEFAULT_POLICY_ID
 # from ray.rllib.evaluation.sampler import clip_action
 
-from models.conv_to_fc_net import ConvToFCNet
+from models.conv_to_fc_net import ConvToFCNet, ConvToFCNetLarge
 import utility_funcs
 
 
@@ -59,6 +59,8 @@ def visualizer_rllib(args):
     register_env(env_name, env_creator.func)
 
     ModelCatalog.register_custom_model("conv_to_fc_net", ConvToFCNet)
+    ModelCatalog.register_custom_model("conv_to_fc_net_large", ConvToFCNetLarge)
+
 
     # Determine agent and checkpoint
     config_run = config['env_config']['run'] if 'run' in config['env_config'] \
