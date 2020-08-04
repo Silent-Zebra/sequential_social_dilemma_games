@@ -224,7 +224,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
 
     # register the custom model
     if conv_large:
-        model_name = "conv_to_fc_net_large"
+        model_name = "conv_to_fc_net"
         ModelCatalog.register_custom_model(model_name, ConvToFCNetLarge)
     else:
         model_name = "conv_to_fc_net"
@@ -279,7 +279,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
     if algorithm not in ["DQN"]:
         if conv_large:
             config.update(
-                {"model": {"custom_model": "conv_to_fc_net_large", "use_lstm": True,
+                {"model": {"custom_model": "conv_to_fc_net", "use_lstm": True,
                            "lstm_cell_size": 256}})
         else:
             config.update({"model": {"custom_model": "conv_to_fc_net", "use_lstm": True,
