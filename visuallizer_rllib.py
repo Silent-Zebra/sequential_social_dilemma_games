@@ -85,7 +85,7 @@ def visualizer_rllib(args):
         sys.exit(1)
 
     # Run on only one cpu for rendering purposes if possible; A3C requires two
-    if config_run == 'A3C':
+    if config_run in ['A3C', 'IMPALA']:
         config['num_workers'] = 1
         config["sample_async"] = False
     else:
