@@ -307,7 +307,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
 
 
 def main(args):
-    ray.init(num_cpus=args.num_cpus, redirect_output=True)
+    ray.init(num_cpus=args.num_cpus)
     if args.env == 'harvest':
         hparams = harvest_default_params
     else:
