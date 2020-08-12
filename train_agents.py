@@ -159,6 +159,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
           num_agents, use_gpus_for_workers=False, use_gpu_for_driver=False,
           num_workers_per_device=1, num_envs_per_worker=1,
           # remote_worker_envs=False,
+          custom_callback=True,
           intrinsic_rew_params=None, impala_replay=False, conv_large=False,
           harvest_map='regular',
           cleanup_map='regular', hit_penalty=50, fire_cost=1):
@@ -263,10 +264,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
                 "num_cpus_per_worker": num_cpus_per_worker,   # Can be a fraction
                 "num_envs_per_worker": num_envs_per_worker,
                 # "remote_worker_envs": remote_worker_envs,
-                "callbacks": {
-                    "on_episode_start": tune.function(on_episode_start),
-                    "on_episode_end": tune.function(on_episode_end),
-                },
+
                 "multiagent": {
                     "policy_graphs": policy_graphs,
                     "policy_mapping_fn": tune.function(policy_mapping_fn),
@@ -276,6 +274,14 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
                 #           "lstm_cell_size": 128}
 
     })
+
+    if custom_callback:
+        config.update({"callbacks": {
+                    "on_episode_start": tune.function(on_episode_start),
+                    "on_episode_end": tune.function(on_episode_end),
+                }})
+
+
     if algorithm not in ["DQN"]:
         if conv_large:
             config.update(
@@ -306,6 +312,11 @@ def main(args):
         hparams = harvest_default_params
     else:
         hparams = cleanup_default_params
+
+    if args.no_custom_callback:
+        custom_callback = False
+    else:
+        custom_callback = True
     alg_run, env_name, config = setup(args.env, hparams, args.algorithm,
                                       args.train_batch_size,
                                       args.num_cpus,
@@ -315,6 +326,7 @@ def main(args):
                                       args.num_workers_per_device,
                                       args.num_envs_per_worker,
                                       # args.remote_worker_envs,
+                                      custom_callback,
                                       args.intrinsic_rew_params,
                                       args.impala_replay,
                                       args.conv_large,
@@ -380,6 +392,7 @@ if __name__ == "__main__":
     parser.add_argument("--fire_cost", type=int, default=1, help="Cost of firing a punishment beam")
     parser.add_argument("--impala_replay", action="store_true", help="Use IMPALA Replay Buffer")
     parser.add_argument("--conv_large", action="store_true", help="Use larger convnet architecture")
+    parser.add_argument("--no_custom_callback", action="store_true", help="No custom callback/metrics")
 
 
     args = parser.parse_args()
