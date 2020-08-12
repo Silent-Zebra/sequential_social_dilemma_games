@@ -201,12 +201,12 @@ class HarvestAgent(Agent):
 
     @property
     def observation_space(self):
-        map_obs = Box(low=0.0, high=0.0, shape=(2 * self.view_len + 1,
+        map_obs = Box(low=0.0, high=255.0, shape=(2 * self.view_len + 1,
                                              2 * self.view_len + 1, 3), dtype=np.float32)
         # if self.intrinsic_rew_type is None:
         #     return map_obs
         # else:
-        rew_obs = Box(low=0.0, high=0.0, shape=(self.num_agents,), dtype=np.float32)
+        rew_obs = Box(low=0.0, high=255.0, shape=(self.num_agents,), dtype=np.float32)
         return Tuple([map_obs, rew_obs])
     # def observation_space(self):
     #     return Box(low=0.0, high=0.0, shape=(2 * self.view_len + 1,
@@ -266,13 +266,13 @@ class CleanupAgent(Agent):
 
     @property
     def observation_space(self):
-        map_obs = Box(low=0.0, high=0.0, shape=(2 * self.view_len + 1,
+        map_obs = Box(low=0.0, high=255.0, shape=(2 * self.view_len + 1,
                                                 2 * self.view_len + 1, 3),
                       dtype=np.float32)
         # if self.intrinsic_rew_type is None:
         #     return map_obs
         # else:
-        rew_obs = Box(low=0.0, high=0.0, shape=(self.num_agents,),
+        rew_obs = Box(low=0.0, high=255.0, shape=(self.num_agents,),
                       dtype=np.float32)
         return Tuple([map_obs, rew_obs])
         # return Box(low=0.0, high=0.0, shape=(2 * self.view_len + 1,
