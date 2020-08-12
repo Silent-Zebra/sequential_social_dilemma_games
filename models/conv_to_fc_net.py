@@ -9,7 +9,8 @@
 import tensorflow as tf
 
 from ray.rllib.models.model import Model
-import tensorflow.contrib.slim as slim
+# import tensorflow.contrib.slim as slim
+import tf_slim as slim
 import numpy as np
 
 
