@@ -1,9 +1,9 @@
 import ray
 from ray import tune
 from ray.rllib.agents.registry import get_agent_class
-from ray.rllib.agents.ppo.ppo_policy_graph import PPOPolicyGraph
-from ray.rllib.agents.a3c.a3c_tf_policy_graph import A3CPolicyGraph
-from ray.rllib.agents.dqn.dqn_policy_graph import DQNPolicyGraph
+# from ray.rllib.agents.ppo.ppo_policy_graph import PPOPolicyGraph
+from ray.rllib.agents.a3c.a3c_tf_policy import A3CTFPolicy
+# from ray.rllib.agents.dqn.dqn_policy_graph import DQNPolicyGraph
 
 from ray.rllib.models import ModelCatalog
 from ray.tune import run_experiments
@@ -210,7 +210,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
         elif algorithm == "PPO":
             p_graph = PPOPolicyGraph
         else:
-            p_graph = A3CPolicyGraph
+            p_graph = A3CTFPolicy
         # return (PPOPolicyGraph, obs_space, act_space, {})
         return (p_graph, obs_space, act_space, {})
         # return (None, obs_space, act_space, {}) # should be default now
