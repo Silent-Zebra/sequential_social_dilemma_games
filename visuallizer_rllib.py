@@ -59,7 +59,8 @@ def visualizer_rllib(args):
     # Create and register a gym+rllib env
     env_creator = pkl['env_config']['func_create']
     env_name = config['env_config']['env_name']
-    register_env(env_name, env_creator.func)
+    # register_env(env_name, env_creator.func)
+    register_env(env_name, env_creator)
 
     ModelCatalog.register_custom_model("conv_to_fc_net", ConvToFCNet)
     ModelCatalog.register_custom_model("conv_to_fc_net_large", ConvToFCNetLarge)
