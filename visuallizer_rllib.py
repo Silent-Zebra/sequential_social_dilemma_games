@@ -13,11 +13,14 @@ from ray.rllib.agents.registry import get_agent_class
 from ray.rllib.models import ModelCatalog
 from ray.tune.registry import register_env
 from ray.cloudpickle import cloudpickle
-from ray.rllib.evaluation.sample_batch import DEFAULT_POLICY_ID
+# from ray.rllib.evaluation.sample_batch import DEFAULT_POLICY_ID
 # from ray.rllib.evaluation.sampler import clip_action
 
 from models.conv_to_fc_net import ConvToFCNet, ConvToFCNetLarge
 import utility_funcs
+
+
+DEFAULT_POLICY_ID = "default"
 
 
 def get_rllib_config(path):
