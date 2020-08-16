@@ -4,6 +4,8 @@ from ray.rllib.agents.registry import get_agent_class
 # from ray.rllib.agents.ppo.ppo_policy_graph import PPOPolicyGraph
 from ray.rllib.agents.a3c.a3c_tf_policy import A3CTFPolicy
 # from ray.rllib.agents.dqn.dqn_policy_graph import DQNPolicyGraph
+from ray.rllib.agents.impala.vtrace_policy import VTraceTFPolicy
+
 
 from ray.rllib.models import ModelCatalog
 from ray.tune import run_experiments
@@ -205,15 +207,17 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
 
     # Each policy can have a different configuration (including custom model)
     def gen_policy():
-        if algorithm == "DQN":
-            p_graph = DQNPolicyGraph
-        elif algorithm == "PPO":
-            p_graph = PPOPolicyGraph
+        # if algorithm == "DQN":
+        #     p_graph = DQNPolicyGraph
+        # elif algorithm == "PPO":
+        #     p_graph = PPOPolicyGraph
+        # else:
+        #     p_graph = A3CTFPolicy
+        if algorithm == "IMPALA":
+            policy = VTraceTFPolicy
         else:
-            p_graph = A3CTFPolicy
-        # return (PPOPolicyGraph, obs_space, act_space, {})
-        return (p_graph, obs_space, act_space, {})
-        # return (None, obs_space, act_space, {}) # should be default now
+            policy = A3CTFPolicy
+        return (policy, obs_space, act_space, {})
 
     # Setup algorithm with an ensemble of `num_policies` different policy graphs
     policy_graphs = {}
@@ -266,7 +270,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
                 # "remote_worker_envs": remote_worker_envs,
 
                 "multiagent": {
-                    "policy_graphs": policy_graphs,
+                    "policies": policy_graphs,
                     "policy_mapping_fn": tune.function(policy_mapping_fn),
                 }
         # ,
