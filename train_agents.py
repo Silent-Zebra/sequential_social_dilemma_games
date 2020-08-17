@@ -162,7 +162,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
           num_workers_per_device=1, num_envs_per_worker=1,
           # remote_worker_envs=False,
           custom_callback=True,
-          intrinsic_rew_params=None, impala_replay=False, conv_large=False,
+          intrinsic_rew_params=None, impala_replay=False, conv_large=True,
           harvest_map='regular',
           cleanup_map='regular', hit_penalty=50, fire_cost=1):
 
@@ -321,6 +321,11 @@ def main(args):
         custom_callback = False
     else:
         custom_callback = True
+
+    conv_large=True
+    if args.conv_small:
+        conv_large=False
+
     alg_run, env_name, config = setup(args.env, hparams, args.algorithm,
                                       args.train_batch_size,
                                       args.num_cpus,
@@ -333,7 +338,7 @@ def main(args):
                                       custom_callback,
                                       args.intrinsic_rew_params,
                                       args.impala_replay,
-                                      args.conv_large,
+                                      conv_large,
                                       args.harvest_map,
                                       args.cleanup_map,
                                       args.hit_penalty,
@@ -395,7 +400,7 @@ if __name__ == "__main__":
     parser.add_argument("--hit_penalty", type=int, default=50, help="Cost of being hit by a punishment beam")
     parser.add_argument("--fire_cost", type=int, default=1, help="Cost of firing a punishment beam")
     parser.add_argument("--impala_replay", action="store_true", help="Use IMPALA Replay Buffer")
-    parser.add_argument("--conv_large", action="store_true", help="Use larger convnet architecture")
+    parser.add_argument("--conv_small", action="store_true", help="Use smaller convnet architecture")
     parser.add_argument("--no_custom_callback", action="store_true", help="No custom callback/metrics")
 
 
