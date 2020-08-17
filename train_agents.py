@@ -163,6 +163,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
           # remote_worker_envs=False,
           custom_callback=True,
           intrinsic_rew_params=None, impala_replay=False, conv_large=True,
+          vtrace_policy=False,
           harvest_map='regular',
           cleanup_map='regular', hit_penalty=50, fire_cost=1):
 
@@ -207,13 +208,12 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
 
     # Each policy can have a different configuration (including custom model)
     def gen_policy():
-        # if algorithm == "DQN":
-        #     p_graph = DQNPolicyGraph
-        # elif algorithm == "PPO":
-        #     p_graph = PPOPolicyGraph
+        # policy = A3CTFPolicy
+        # if algorithm == "IMPALA":
+        #     policy = VTraceTFPolicy
         # else:
-        #     p_graph = A3CTFPolicy
-        if algorithm == "IMPALA":
+        #     policy = A3CTFPolicy
+        if vtrace_policy:
             policy = VTraceTFPolicy
         else:
             policy = A3CTFPolicy
@@ -339,6 +339,7 @@ def main(args):
                                       args.intrinsic_rew_params,
                                       args.impala_replay,
                                       conv_large,
+                                      args.vtrace_policy,
                                       args.harvest_map,
                                       args.cleanup_map,
                                       args.hit_penalty,
@@ -402,6 +403,7 @@ if __name__ == "__main__":
     parser.add_argument("--impala_replay", action="store_true", help="Use IMPALA Replay Buffer")
     parser.add_argument("--conv_small", action="store_true", help="Use smaller convnet architecture")
     parser.add_argument("--no_custom_callback", action="store_true", help="No custom callback/metrics")
+    parser.add_argument("--vtrace_policy", action="store_true", help="Use Vtrace policy base for IMPALA")
 
 
     args = parser.parse_args()
