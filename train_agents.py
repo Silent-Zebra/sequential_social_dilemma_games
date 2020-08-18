@@ -303,7 +303,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
                        })
 
     if algorithm in ["IMPALA"] and impala_replay:
-        config.update({"replay_proportion": 0.5, "replay_buffer_num_slots": 10000})
+        config.update({"replay_proportion": 0.5, "replay_buffer_num_slots": 100000})
 
 
 
