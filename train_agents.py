@@ -162,7 +162,11 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
           num_workers_per_device=1, num_envs_per_worker=1,
           # remote_worker_envs=False,
           custom_callback=True,
-          intrinsic_rew_params=None, impala_replay=False, conv_large=True,
+          intrinsic_rew_params=None,
+          impala_replay=False,
+          replay_proportion=0.0,
+          replay_buffer_num_slots=0,
+          conv_large=True,
           vtrace_policy=False,
           harvest_map='regular',
           cleanup_map='regular', hit_penalty=50, fire_cost=1):
@@ -303,7 +307,8 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
                        })
 
     if algorithm in ["IMPALA"] and impala_replay:
-        config.update({"replay_proportion": 0.5, "replay_buffer_num_slots": 100000})
+        config.update({"replay_proportion": replay_proportion,
+                       "replay_buffer_num_slots": replay_buffer_num_slots})
 
 
 
@@ -338,6 +343,8 @@ def main(args):
                                       custom_callback,
                                       args.intrinsic_rew_params,
                                       args.impala_replay,
+                                      args.replay_proportion,
+                                      args.replay_buffer_num_slots,
                                       conv_large,
                                       args.vtrace_policy,
                                       args.harvest_map,
@@ -400,11 +407,12 @@ if __name__ == "__main__":
     # parser.add_argument("--resume", action="store_true", help="Set to resume an experiment")
     parser.add_argument("--hit_penalty", type=int, default=50, help="Cost of being hit by a punishment beam")
     parser.add_argument("--fire_cost", type=int, default=1, help="Cost of firing a punishment beam")
-    parser.add_argument("--impala_replay", action="store_true", help="Use IMPALA Replay Buffer")
     parser.add_argument("--conv_small", action="store_true", help="Use smaller convnet architecture")
     parser.add_argument("--no_custom_callback", action="store_true", help="No custom callback/metrics")
     parser.add_argument("--vtrace_policy", action="store_true", help="Use Vtrace policy base for IMPALA")
-
+    parser.add_argument("--impala_replay", action="store_true", help="Use IMPALA Replay Buffer")
+    parser.add_argument("--replay_proportion", type=float, default=0.5, help="Only if using IMPALA replay buffer")
+    parser.add_argument("--replay_buffer_num_slots", type=int, default=10000, help="Only if using IMPALA replay buffer")
 
     args = parser.parse_args()
 
