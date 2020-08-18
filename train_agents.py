@@ -40,12 +40,12 @@ def average(lst):
 harvest_default_params = {
     'lr_init': 0.00136,
     'lr_final': 0.000028,
-    'entropy_coeff': -.000687}
+    'entropy_coeff': .000687}
 
 cleanup_default_params = {
     'lr_init': 0.00126,
     'lr_final': 0.000012,
-    'entropy_coeff': -.00176}
+    'entropy_coeff': .00176}
 
 
 def on_episode_start(info):
