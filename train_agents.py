@@ -168,6 +168,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
           replay_buffer_num_slots=0,
           conv_large=True,
           vtrace_policy=False,
+          default_policy=False,
           harvest_map='regular',
           cleanup_map='regular', hit_penalty=50, fire_cost=1):
 
@@ -221,6 +222,8 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
             policy = VTraceTFPolicy
         else:
             policy = A3CTFPolicy
+        if default_policy:
+            policy = None
         return (policy, obs_space, act_space, {})
 
     # Setup algorithm with an ensemble of `num_policies` different policy graphs
@@ -347,6 +350,7 @@ def main(args):
                                       args.replay_buffer_num_slots,
                                       conv_large,
                                       args.vtrace_policy,
+                                      args.default_policy,
                                       args.harvest_map,
                                       args.cleanup_map,
                                       args.hit_penalty,
@@ -413,6 +417,7 @@ if __name__ == "__main__":
     parser.add_argument("--impala_replay", action="store_true", help="Use IMPALA Replay Buffer")
     parser.add_argument("--replay_proportion", type=float, default=0.5, help="Only if using IMPALA replay buffer")
     parser.add_argument("--replay_buffer_num_slots", type=int, default=10000, help="Only if using IMPALA replay buffer")
+    parser.add_argument("--default_policy", action="store_true", help="Use None policy (base algorithm) - for testing")
 
     args = parser.parse_args()
 
