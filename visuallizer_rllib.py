@@ -14,13 +14,14 @@ from ray.rllib.models import ModelCatalog
 from ray.tune.registry import register_env
 from ray.cloudpickle import cloudpickle
 # from ray.rllib.evaluation.sample_batch import DEFAULT_POLICY_ID
+from ray.rllib.policy.sample_batch import SampleBatch, DEFAULT_POLICY_ID
 # from ray.rllib.evaluation.sampler import clip_action
 
 from models.conv_to_fc_net import ConvToFCNet, ConvToFCNetLarge
 import utility_funcs
 
 
-DEFAULT_POLICY_ID = "default"
+# DEFAULT_POLICY_ID = "default_policy"
 
 
 def get_rllib_config(path):
@@ -47,7 +48,8 @@ def visualizer_rllib(args):
 
     # check if we have a multiagent scenario but in a
     # backwards compatible way
-    if config.get('multiagent', {}).get('policy_graphs', {}):
+    # if config.get('multiagent', {}).get('policy_graphs', {}):
+    if config.get('multiagent', {}).get('policies', {}):
         multiagent = True
         config['multiagent'] = pkl['multiagent']
     else:
@@ -96,21 +98,33 @@ def visualizer_rllib(args):
         config['num_workers'] = 0
 
     # create the agent that will be used to compute the actions
+    # print("HERE")
+    # print(agent_cls)
+    # print(env_name)
+    # print("CONFIG")
+    # print(config)
     agent = agent_cls(env=env_name, config=config)
     checkpoint = result_dir + '/checkpoint_' + args.checkpoint_num
     checkpoint = checkpoint + '/checkpoint-' + args.checkpoint_num
     print('Loading checkpoint', checkpoint)
     agent.restore(checkpoint)
-    if hasattr(agent, "local_evaluator"):
-        env = agent.local_evaluator.env
+    print("HERE")
+    print(agent)
+    # from pprint import pprint
+    # pprint(vars(agent))
+    env = agent.env_creator(None)
+    # if hasattr(agent, "local_evaluator"):
+        # env = agent.local_evaluator.env
 
     if args.save_video:
         shape = env.base_map.shape
         full_obs = [np.zeros((shape[0], shape[1], 3), dtype=np.uint8)
                     for i in range(config["horizon"])]
 
-    if hasattr(agent, "local_evaluator"):
-        multiagent = agent.local_evaluator.multiagent
+    # if hasattr(agent, "local_evaluator"):
+    if "multiagent" in agent.config:
+        # multiagent = agent.local_evaluator.multiagent
+        multiagent = True
 
         if args.force_multiagent:
             multiagent = True
@@ -119,8 +133,11 @@ def visualizer_rllib(args):
             policy_agent_mapping = agent.config["multiagent"][
                 "policy_mapping_fn"]
             mapping_cache = {}
-        policy_map = agent.local_evaluator.policy_map
+        # policy_map = agent.local_evaluator.policy_map
+        policy_map = agent.workers.local_worker().policy_map
         state_init = {p: m.get_initial_state() for p, m in policy_map.items()}
+        # state_init = env.reset()
+        # print(state_init)
         use_lstm = {p: len(s) > 0 for p, s in state_init.items()}
     else:
         multiagent = False
@@ -159,6 +176,7 @@ def visualizer_rllib(args):
                     action, state_init, _ = agent.compute_action(
                         state, state=state_init)
                 else:
+                    print(state)
                     action = agent.compute_action(state)
 
             if agent.config["clip_actions"]:
@@ -207,6 +225,8 @@ def create_parser():
         '--result_dir', type=str, help='Directory containing results')
     parser.add_argument('--checkpoint_num', type=str, help='Checkpoint number.')
 
+
+
     # optional input parameters
     parser.add_argument(
         '--run',
@@ -233,6 +253,8 @@ def create_parser():
         '--force_multiagent',
         action='store_true',
         help='force multiagent flag to be true')
+
+
     return parser
 
 
