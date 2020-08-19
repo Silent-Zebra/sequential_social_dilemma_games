@@ -267,6 +267,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
     # hyperparams
     config.update({
                 "train_batch_size": train_batch_size,
+                "gamma": 1.0,
                 "horizon": 1000,
                 "num_workers": num_workers,
                 "num_gpus": gpus_for_driver,  # The number of GPUs for the driver
