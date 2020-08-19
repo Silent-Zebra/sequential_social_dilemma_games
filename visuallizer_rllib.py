@@ -55,8 +55,6 @@ def visualizer_rllib(args):
     else:
         multiagent = False
 
-    if args.force_multiagent:
-        multiagent = True
 
     # Create and register a gym+rllib env
     env_creator = pkl['env_config']['func_create']
@@ -126,9 +124,6 @@ def visualizer_rllib(args):
         # multiagent = agent.local_evaluator.multiagent
         multiagent = True
 
-        if args.force_multiagent:
-            multiagent = True
-
         if multiagent:
             policy_agent_mapping = agent.config["multiagent"][
                 "policy_mapping_fn"]
@@ -143,8 +138,6 @@ def visualizer_rllib(args):
         multiagent = False
         use_lstm = {DEFAULT_POLICY_ID: False}
 
-    if args.force_multiagent:
-        multiagent = True
 
     steps = 0
     while steps < (config['horizon'] or steps + 1):
@@ -249,11 +242,6 @@ def create_parser():
         '--render',
         action='store_true',
         help='whether to watch the rollout while it happens')
-    parser.add_argument(
-        '--force_multiagent',
-        action='store_true',
-        help='force multiagent flag to be true')
-
 
     return parser
 
