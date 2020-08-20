@@ -170,7 +170,8 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
           vtrace_policy=False,
           default_policy=False,
           harvest_map='regular',
-          cleanup_map='regular', hit_penalty=50, fire_cost=1):
+          cleanup_map='regular', hit_penalty=50, fire_cost=1,
+          gamma=0.99):
 
     if intrinsic_rew_params is None:
         ir_param_list = [None] * num_agents
@@ -267,7 +268,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
     # hyperparams
     config.update({
                 "train_batch_size": train_batch_size,
-                "gamma": 1.0,
+                "gamma": gamma,
                 "horizon": 1000,
                 "num_workers": num_workers,
                 "num_gpus": gpus_for_driver,  # The number of GPUs for the driver
@@ -355,7 +356,8 @@ def main(args):
                                       args.harvest_map,
                                       args.cleanup_map,
                                       args.hit_penalty,
-                                      args.fire_cost)
+                                      args.fire_cost,
+                                      args.gamma)
 
     if args.exp_name is None:
         exp_name = args.env + '_' + args.algorithm
@@ -419,6 +421,7 @@ if __name__ == "__main__":
     parser.add_argument("--replay_proportion", type=float, default=0.5, help="Only if using IMPALA replay buffer")
     parser.add_argument("--replay_buffer_num_slots", type=int, default=10000, help="Only if using IMPALA replay buffer")
     parser.add_argument("--default_policy", action="store_true", help="Use None policy (base algorithm) - for testing")
+    parser.add_argument("--gamma", type=float, default=0.99, help="Discount factor to use for the experiment")
 
     args = parser.parse_args()
 
