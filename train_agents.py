@@ -278,7 +278,7 @@ def setup(env, hparams, algorithm, train_batch_size, rollout_fragment_length,
                 "num_cpus_per_worker": num_cpus_per_worker,   # Can be a fraction
                 "num_envs_per_worker": num_envs_per_worker,
                 # "remote_worker_envs": remote_worker_envs,
-                "rollout_fragment_length": rollout_fragment_length,
+                "sample_batch_size": rollout_fragment_length,
 
                 "multiagent": {
                     "policies": policy_graphs,
@@ -394,7 +394,8 @@ if __name__ == "__main__":
     parser.add_argument("--env", type=str, default="harvest", help="Name of the environment to rollout. Can be cleanup or harvest.")
     parser.add_argument("--algorithm", type=str, default="A3C", help="Name of the rllib algorithm to use.")
     parser.add_argument("--num_agents", type=int, default="5", help="Number of agent policies")
-    parser.add_argument("--train_batch_size", type=int, default="30000", help="Size of the total dataset over which one epoch is computed.")
+    # reduce batch size from 30k to 10k maybe esp given increased fragment length to 100
+    parser.add_argument("--train_batch_size", type=int, default="10000", help="Size of the total dataset over which one epoch is computed.")
     parser.add_argument("--checkpoint_frequency", type=int, default="20", help="Number of steps before a checkpoint is saved.")
     parser.add_argument("--training_iterations", type=int, default="500", help="Total number of steps to train for")
     parser.add_argument("--num_cpus", type=int, default="2", help="Number of available CPUs")
@@ -426,6 +427,7 @@ if __name__ == "__main__":
     parser.add_argument("--default_policy", action="store_true", help="Use None policy (base algorithm) - for testing")
     parser.add_argument("--gamma", type=float, default=0.99, help="Discount factor to use for the experiment")
     parser.add_argument("--rollout_fragment_length", type=int, default=100)
+    # parser.add_argument("--sample_batch_size", type=int, default=100)
 
     args = parser.parse_args()
 
