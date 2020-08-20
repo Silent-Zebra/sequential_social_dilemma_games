@@ -157,7 +157,8 @@ def on_episode_end(info):
     sys.stdout.flush()
 
 
-def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
+def setup(env, hparams, algorithm, train_batch_size, rollout_fragment_length,
+          num_cpus, num_gpus,
           num_agents, use_gpus_for_workers=False, use_gpu_for_driver=False,
           num_workers_per_device=1, num_envs_per_worker=1,
           # remote_worker_envs=False,
@@ -277,6 +278,7 @@ def setup(env, hparams, algorithm, train_batch_size, num_cpus, num_gpus,
                 "num_cpus_per_worker": num_cpus_per_worker,   # Can be a fraction
                 "num_envs_per_worker": num_envs_per_worker,
                 # "remote_worker_envs": remote_worker_envs,
+                "rollout_fragment_length": rollout_fragment_length,
 
                 "multiagent": {
                     "policies": policy_graphs,
@@ -338,6 +340,7 @@ def main(args):
 
     alg_run, env_name, config = setup(args.env, hparams, args.algorithm,
                                       args.train_batch_size,
+                                      args.rollout_fragment_length,
                                       args.num_cpus,
                                       args.num_gpus, args.num_agents,
                                       args.use_gpus_for_workers,
@@ -422,6 +425,7 @@ if __name__ == "__main__":
     parser.add_argument("--replay_buffer_num_slots", type=int, default=10000, help="Only if using IMPALA replay buffer")
     parser.add_argument("--default_policy", action="store_true", help="Use None policy (base algorithm) - for testing")
     parser.add_argument("--gamma", type=float, default=0.99, help="Discount factor to use for the experiment")
+    parser.add_argument("--rollout_fragment_length", type=int, default=100)
 
     args = parser.parse_args()
 
