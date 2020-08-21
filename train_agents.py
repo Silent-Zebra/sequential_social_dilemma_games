@@ -158,6 +158,7 @@ def on_episode_end(info):
 
 
 def setup(env, hparams, algorithm, train_batch_size, rollout_fragment_length,
+          training_iterations,
           num_cpus, num_gpus,
           num_agents, use_gpus_for_workers=False, use_gpu_for_driver=False,
           num_workers_per_device=1, num_envs_per_worker=1,
@@ -266,11 +267,12 @@ def setup(env, hparams, algorithm, train_batch_size, rollout_fragment_length,
         num_gpus_per_worker = 0
         num_cpus_per_worker = spare_cpus / num_workers
 
+    horizon = 1000
     # hyperparams
     config.update({
                 "train_batch_size": train_batch_size,
                 "gamma": gamma,
-                "horizon": 1000,
+                "horizon": horizon,
                 "num_workers": num_workers,
                 "num_gpus": gpus_for_driver,  # The number of GPUs for the driver
                 "num_cpus_for_driver": cpus_for_driver,
@@ -309,7 +311,7 @@ def setup(env, hparams, algorithm, train_batch_size, rollout_fragment_length,
     if algorithm in ["A2C", "A3C", "IMPALA"]:
         config.update({"lr_schedule":
                 [[0, hparams['lr_init']],
-                    [20000000, hparams['lr_final']]],
+                    [training_iterations * horizon, hparams['lr_final']]],
                        "entropy_coeff": hparams['entropy_coeff']
                        })
 
@@ -328,6 +330,12 @@ def main(args):
         hparams = harvest_default_params
     else:
         hparams = cleanup_default_params
+    if args.lr_init > 0.0:
+        hparams['lr_init'] = args.lr_init
+    if args.lr_final > 0.0:
+        hparams['lr_final'] = args.lr_final
+    if args.entropy_coeff > 0.0:
+        hparams['entropy_coeff'] = args.entropy_coeff
 
     if args.no_custom_callback:
         custom_callback = False
@@ -341,6 +349,7 @@ def main(args):
     alg_run, env_name, config = setup(args.env, hparams, args.algorithm,
                                       args.train_batch_size,
                                       args.rollout_fragment_length,
+                                      args.training_iterations,
                                       args.num_cpus,
                                       args.num_gpus, args.num_agents,
                                       args.use_gpus_for_workers,
@@ -397,7 +406,7 @@ if __name__ == "__main__":
     # reduce batch size from 30k to 10k maybe esp given increased fragment length to 100
     parser.add_argument("--train_batch_size", type=int, default="10000", help="Size of the total dataset over which one epoch is computed.")
     parser.add_argument("--checkpoint_frequency", type=int, default="20", help="Number of steps before a checkpoint is saved.")
-    parser.add_argument("--training_iterations", type=int, default="500", help="Total number of steps to train for")
+    parser.add_argument("--training_iterations", type=int, default="20000", help="Total number of steps (iters, not env steps) to train for")
     parser.add_argument("--num_cpus", type=int, default="2", help="Number of available CPUs")
     parser.add_argument("--num_gpus", type=int, default="0", help="Number of available GPUs")
     parser.add_argument("--use_gpus_for_workers", action="store_true", help="Set to true to run workers on GPUs rather than CPUs")
@@ -428,6 +437,9 @@ if __name__ == "__main__":
     parser.add_argument("--gamma", type=float, default=0.99, help="Discount factor to use for the experiment")
     parser.add_argument("--rollout_fragment_length", type=int, default=100)
     # parser.add_argument("--sample_batch_size", type=int, default=100)
+    parser.add_argument("--lr_init", type=float, default=0.0, help="Init learning rate. If 0, use default hyperparams for harvest/cleanup")
+    parser.add_argument("--lr_final", type=float, default=0.0, help="Final learning rate. If 0, use default hyperparams for harvest/cleanup")
+    parser.add_argument("--entropy_coeff", type=float, default=0.0, help="Entropy coefficient (exploration/random action incentive). If 0, use default hyperparams for harvest/cleanup")
 
     args = parser.parse_args()
 
