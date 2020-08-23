@@ -405,7 +405,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_agents", type=int, default="5", help="Number of agent policies")
     # reduce batch size from 30k to 10k maybe esp given increased fragment length to 100
     parser.add_argument("--train_batch_size", type=int, default="10000", help="Size of the total dataset over which one epoch is computed.")
-    parser.add_argument("--checkpoint_frequency", type=int, default="20", help="Number of steps before a checkpoint is saved.")
+    parser.add_argument("--checkpoint_frequency", type=int, default="100", help="Number of steps before a checkpoint is saved.")
     parser.add_argument("--training_iterations", type=int, default="20000", help="Total number of steps (iters, not env steps) to train for")
     parser.add_argument("--num_cpus", type=int, default="2", help="Number of available CPUs")
     parser.add_argument("--num_gpus", type=int, default="0", help="Number of available GPUs")
