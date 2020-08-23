@@ -10,6 +10,9 @@ from ray.rllib.agents.impala.vtrace_policy import VTraceTFPolicy
 from ray.rllib.models import ModelCatalog
 from ray.tune import run_experiments
 from ray.tune.registry import register_env
+
+from ray.tune.logger import JsonLogger, DEFAULT_LOGGERS
+
 # import tensorflow as tf
 import collections
 
@@ -388,6 +391,7 @@ def main(args):
         exp_name: {
             "run": alg_run,
             "env": env_name,
+            "loggers": (JsonLogger,), # Remove this line if we want just default loggers
             "stop": {
                 "training_iteration": args.training_iterations
             },
