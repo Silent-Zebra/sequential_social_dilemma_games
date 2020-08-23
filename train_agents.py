@@ -168,7 +168,7 @@ def setup(env, hparams, algorithm, train_batch_size, rollout_fragment_length,
           impala_replay=False,
           replay_proportion=0.0,
           replay_buffer_num_slots=0,
-          conv_large=True,
+          conv_large=False,
           vtrace_policy=False,
           default_policy=False,
           harvest_map='regular',
@@ -342,9 +342,9 @@ def main(args):
     else:
         custom_callback = True
 
-    conv_large=True
-    if args.conv_small:
-        conv_large=False
+    conv_large=False
+    if args.conv_large:
+        conv_large=True
 
     alg_run, env_name, config = setup(args.env, hparams, args.algorithm,
                                       args.train_batch_size,
@@ -427,7 +427,8 @@ if __name__ == "__main__":
     # parser.add_argument("--resume", action="store_true", help="Set to resume an experiment")
     parser.add_argument("--hit_penalty", type=int, default=50, help="Cost of being hit by a punishment beam")
     parser.add_argument("--fire_cost", type=int, default=1, help="Cost of firing a punishment beam")
-    parser.add_argument("--conv_small", action="store_true", help="Use smaller convnet architecture")
+    # parser.add_argument("--conv_small", action="store_true", help="Use smaller convnet architecture")
+    parser.add_argument("--conv_large", action="store_true", help="Use larger convnet architecture")
     parser.add_argument("--no_custom_callback", action="store_true", help="No custom callback/metrics")
     parser.add_argument("--vtrace_policy", action="store_true", help="Use Vtrace policy base for IMPALA")
     parser.add_argument("--impala_replay", action="store_true", help="Use IMPALA Replay Buffer")
