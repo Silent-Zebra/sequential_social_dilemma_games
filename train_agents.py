@@ -406,7 +406,7 @@ if __name__ == "__main__":
     # reduce batch size from 30k to 10k maybe esp given increased fragment length to 100
     parser.add_argument("--train_batch_size", type=int, default="10000", help="Size of the total dataset over which one epoch is computed.")
     parser.add_argument("--checkpoint_frequency", type=int, default="100", help="Number of steps before a checkpoint is saved.")
-    parser.add_argument("--training_iterations", type=int, default="20000", help="Total number of steps (iters, not env steps) to train for")
+    parser.add_argument("--training_iterations", type=int, default="20000", help="Total number of steps (iters/epochs, not env steps) to train/execute experiment for")
     parser.add_argument("--num_cpus", type=int, default="2", help="Number of available CPUs")
     parser.add_argument("--num_gpus", type=int, default="0", help="Number of available GPUs")
     parser.add_argument("--use_gpus_for_workers", action="store_true", help="Set to true to run workers on GPUs rather than CPUs")
@@ -421,7 +421,7 @@ if __name__ == "__main__":
     # Ineq aversion is alpha, beta
     # Altruism is w_self, w_others
     # SVO is angle (degrees), weight
-    # THird param is intrinsic reward scaling (Effectively changing the learning rate)
+    # Third param is intrinsic reward scaling (Effectively changing the learning rate)
     parser.add_argument("--harvest_map", type=str, default='regular', choices=['regular', 'tiny', 'big', 'toy', 'cpr'])
     parser.add_argument("--cleanup_map", type=str, default='regular', choices=['regular', 'small'])
     # parser.add_argument("--resume", action="store_true", help="Set to resume an experiment")
