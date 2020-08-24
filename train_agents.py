@@ -22,7 +22,7 @@ import argparse
 
 from social_dilemmas.envs.harvest import HarvestEnv
 from social_dilemmas.constants import HARVEST_MAP, HARVEST_MAP_BIG, \
-    HARVEST_MAP_TINY, HARVEST_MAP_TOY, HARVEST_MAP_CPR, \
+    HARVEST_MAP_TINY, HARVEST_MAP_TOY, HARVEST_MAP_CPR, HARVEST_MAP_CPR2, \
     CLEANUP_MAP, CLEANUP_MAP_SMALL
 from social_dilemmas.envs.cleanup import CleanupEnv
 from models.conv_to_fc_net import ConvToFCNet, ConvToFCNetLarge
@@ -195,6 +195,8 @@ def setup(env, hparams, algorithm, train_batch_size, rollout_fragment_length,
                 ascii_map = HARVEST_MAP_TOY
             elif harvest_map == 'cpr': # note only single agent at present
                 ascii_map = HARVEST_MAP_CPR
+            elif harvest_map == 'cpr2': # cpr map doubled for 2 agents
+                ascii_map = HARVEST_MAP_CPR2
             elif harvest_map == 'big':
                 ascii_map = HARVEST_MAP_BIG
             created_env = HarvestEnv(ascii_map=ascii_map, num_agents=num_agents, ir_param_list=ir_param_list,
@@ -426,7 +428,7 @@ if __name__ == "__main__":
     # Altruism is w_self, w_others
     # SVO is angle (degrees), weight
     # Third param is intrinsic reward scaling (Effectively changing the learning rate)
-    parser.add_argument("--harvest_map", type=str, default='regular', choices=['regular', 'tiny', 'big', 'toy', 'cpr'])
+    parser.add_argument("--harvest_map", type=str, default='regular', choices=['regular', 'tiny', 'big', 'toy', 'cpr', 'cpr2'])
     parser.add_argument("--cleanup_map", type=str, default='regular', choices=['regular', 'small'])
     # parser.add_argument("--resume", action="store_true", help="Set to resume an experiment")
     parser.add_argument("--hit_penalty", type=int, default=50, help="Cost of being hit by a punishment beam")

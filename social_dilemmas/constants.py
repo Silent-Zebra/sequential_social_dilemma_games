@@ -64,6 +64,25 @@ HARVEST_MAP_CPR = [
     '@    A   A   A   A  P@',
     '@@@@@@@@@@@@@@@@@@@@@@',]
 
+HARVEST_MAP_CPR2 = [
+    '@@@@@@@@@@@@@@@@@@@@@@',
+    '@P  A   A   A   A    @',
+    '@  AAA AAA AAA AAA   @',
+    '@   A   A   A   A    @',
+    '@                    @',
+    '@  A   A   A   A   A @',
+    '@ AAA AAA AAA AAA AAA@',
+    '@  A   A   A   A   A @',
+    '@                    @',
+    '@  A   A   A   A   A @',
+    '@ AAA AAA AAA AAA AAA@',
+    '@  A   A   A   A   A @',
+    '@                    @',
+    '@    A   A   A   A   @',
+    '@   AAA AAA AAA AAA  @',
+    '@    A   A   A   A  P@',
+    '@@@@@@@@@@@@@@@@@@@@@@',]
+
 
 # Default
 HARVEST_MAP = [
