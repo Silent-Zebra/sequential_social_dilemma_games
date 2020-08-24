@@ -258,13 +258,15 @@ class MapEnv(MultiAgentEnv):
                 # Then 1 should be a decent default weight. Maybe even > 1 to reduce incentive to collect, increase incentive to care about ineq.
 
         for agent in self.agents.values():
+            self_rew = agent.smoothed_extrinsic_reward
+            others_rew_sum = total_rew_sum - self_rew
+            # num_others = n_agents - 1
+            num_others = len(smoothed_rew_list) - 1
+            others_rew_avg = others_rew_sum / num_others
+
             if agent.intrinsic_rew_type is not None:
                 extrinsic_self_rew = old_rewards[agent.agent_id]
-                self_rew = agent.smoothed_extrinsic_reward
-                others_rew_sum = total_rew_sum - self_rew
-                # num_others = n_agents - 1
-                num_others = len(smoothed_rew_list) - 1
-                others_rew_avg = others_rew_sum / num_others
+
 
                 # Social Diversity paper SVO algo
                 if agent.intrinsic_rew_type == "svo":
@@ -298,10 +300,18 @@ class MapEnv(MultiAgentEnv):
 
                 # simple weighting
                 elif agent.intrinsic_rew_type == "altruism":
-                    w_self = agent.w_self # 1.0
-                    w_others = agent.w_others # 0.2
-                    avg_smooth_rew = total_rew_sum / len(smoothed_rew_list)
-                    intrins_rew = w_self * extrinsic_self_rew + w_others * avg_smooth_rew
+                    w_self = agent.w_self
+                    w_others = agent.w_others
+                    # avg_smooth_rew = total_rew_sum / len(smoothed_rew_list)
+                    intrins_rew = w_self * extrinsic_self_rew + w_others * others_rew_sum
+                    # note others_rew_sum is smoothed
+                    # BTW this means that we may need to scale appropriately. Using sum instead of avg now means
+                    # if you use 1-1 weighting you get num_agents times magnitude higher reward
+                    # Otherwise with n agents to keep the same scale you actually need
+                    # Say 5 agents, x rew, x,4x -> 0.5 x, 1/4*0.5 (4x), something like 0.5, 0.125...
+                    # Well if we just do 1-1 weighting that gives a full sum, then scale down by num agents...
+                    # So 1-1, with 5 agents then just rew scale 0.2 and it will work out fine.
+                    # 2 agents, 1-1 with rew scale 0.5.
 
                 elif agent.intrinsic_rew_type == "gini":
                     intrins_rew = extrinsic_self_rew - agent.gini_weight * gini_coeff
