@@ -139,6 +139,7 @@ class CleanupEnv(MapEnv):
                                      ineq_alpha=agent_params[1],
                                      ineq_beta=agent_params[2],
                                      rew_scale=agent_params[3],
+                                     rew_smoothing=agent_params[4],
                                      hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
             elif agent_params[0].lower() == "altruism":
                 agent = CleanupAgent(agent_id, spawn_point, rotation, map_with_agents,
@@ -147,6 +148,7 @@ class CleanupEnv(MapEnv):
                                      w_self=agent_params[1],
                                      w_others=agent_params[2],
                                      rew_scale=agent_params[3],
+                                     rew_smoothing=agent_params[4],
                                      hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
             elif agent_params[0].lower() == "svo":
                 agent = CleanupAgent(agent_id, spawn_point, rotation, map_with_agents,
@@ -155,6 +157,7 @@ class CleanupEnv(MapEnv):
                                      svo_angle=agent_params[1],
                                      svo_weight=agent_params[2],
                                      rew_scale=agent_params[3],
+                                     rew_smoothing=agent_params[4],
                                      hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
             elif agent_params[0].lower() == "gini":
                 agent = CleanupAgent(agent_id, spawn_point, rotation, map_with_agents,
@@ -163,6 +166,7 @@ class CleanupEnv(MapEnv):
                                      gini_weight=agent_params[1],
                                      # svo_weight=agent_params[2],
                                      rew_scale=agent_params[2],
+                                     rew_smoothing=agent_params[3],
                                      hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
             elif agent_params[0].lower() == "vengeance":
                 agent = CleanupAgent(agent_id, spawn_point, rotation, map_with_agents,
@@ -171,6 +175,7 @@ class CleanupEnv(MapEnv):
                                      vengeance_threshold=agent_params[1],
                                      vengeance_rew=agent_params[2],
                                      rew_scale=agent_params[3],
+                                     rew_smoothing=agent_params[4],
                                      hit_penalty=self.hit_penalty, fire_cost=self.fire_cost)
 
             self.agents[agent_id] = agent
